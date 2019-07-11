@@ -1,27 +1,27 @@
 {
   "name": "kiwi-bundle-cli",
-  "description": "Command all your code projects with a customizable CLI",
+  "description": "Command all your code projects with one unique customizable CLI",
   "version": "1.0.0",
   "author": "Nazim Lachter <nazim@blueforest.fr>",
   "repository": "git@github.com:theblueforest/kiwi-bundle-cli.git",
   "license": "Apache-2.0",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "bin": {
-    "kiwi": "./lib/index.js"
+    "kiwi": "./dist/index.js"
   },
   "scripts": {
-    "start": "tsc -w -p .",
-    "build": "tsc -p .",
-    "cli": "kiwi"
+    "start": "mkdir -p dist && touch dist/index.js && chmod +x dist/index.js && NODE_ENV=dev tsc -w -p .",
+    "build": "rm -rf dist/ && NODE_ENV=prod tsc -p . && chmod +x dist/index.js",
+    "cli": "./dist/index.js"
   },
   "devDependencies": {
     "@types/node": "^12.6.2",
+    "@types/yargs": "^13.0.0",
     "typescript": "^3.5.3"
   },
   "dependencies": {
     "chalk": "^2.4.2",
-    "commander": "^2.20.0",
-    "figlet": "^1.2.3",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "yargs": "^13.2.4"
   }
 }

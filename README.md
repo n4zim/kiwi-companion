@@ -14,20 +14,19 @@ npm install -g kiwi-bundle-cli
 * Empty : `kiwi init -t=empty` (TODO)
 
 
-
 ## NPM commands
 
-### Install dependencies packages (TODO)
+### Install dependencies packages
 ```bash
 kiwi install
 ```
 
-### Add new packages
-* Save on "dependencies" : `kiwi add [PACKAGES NAMES...]` (TODO)
-* Save on "devDependencies" : `kiwi add --dev [PACKAGES NAMES...]` (TODO)
-* Save on "optionalDependencies" : `kiwi add --optional [PACKAGES NAMES...]` (TODO)
+### Add new package(s)
+* Save on "dependencies" : `kiwi add [PACKAGES NAMES...]`
+* Save on "devDependencies" : `kiwi add --dev [PACKAGES NAMES...]`
+* Save on "optionalDependencies" : `kiwi add --optional [PACKAGES NAMES...]`
 
-### Remove packages (TODO)
+### Remove package(s) (TODO)
 ```bash
 kiwi remove [PACKAGES NAMES...]
 ```

@@ -26,7 +26,7 @@ kiwi install
 * Save on "devDependencies" : `kiwi add --dev [PACKAGES NAMES...]`
 * Save on "optionalDependencies" : `kiwi add --optional [PACKAGES NAMES...]`
 
-### Remove package(s) (TODO)
+### Remove package(s)
 ```bash
 kiwi remove [PACKAGES NAMES...]
 ```

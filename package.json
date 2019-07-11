@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/command-exists": "^1.2.0",
+    "@types/forever-monitor": "^1.7.4",
     "@types/node": "^12.6.2",
     "@types/yargs": "^13.0.0",
     "typescript": "^3.5.3"
@@ -23,6 +24,7 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "command-exists": "^1.2.8",
+    "forever-monitor": "^1.7.1",
     "path": "^0.12.7",
     "yargs": "^13.2.4"
   }

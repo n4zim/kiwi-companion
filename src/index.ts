@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs"
 
-const packageJson = require("../package.json")
+export const packageJson = require("../package.json")
 
 yargs
   .scriptName("kiwi")

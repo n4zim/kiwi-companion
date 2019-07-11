@@ -94,4 +94,18 @@ export default class PackagesCommands {
     this.execute([ ...command, ...packages ])
   }
 
+  static remove(packages: string[]) {
+    switch(this.detectBinary()) {
+
+      case PackagesBinary.NPM:
+        this.execute([ "yarn remove", ...packages ])
+        break
+
+      case PackagesBinary.YARN:
+        this.execute([ "npm remove --save", ...packages ])
+        break
+
+    }
+  }
+
 }

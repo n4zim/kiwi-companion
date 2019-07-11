@@ -5,10 +5,10 @@ import { packageJson } from ".."
 import Logger from "./logger"
 import forever from "forever-monitor"
 
-export default class Configs {
+export default class ConfigsV1 {
   private static file = join(homedir(), ".kiwi-bundle")
 
-  static read(): ConfigsType {
+  static get(): ConfigsObject {
     if(fs.existsSync(this.file)) {
       return JSON.parse(fs.readFileSync(this.file, "utf-8"))
     }
@@ -18,16 +18,23 @@ export default class Configs {
     }
   }
 
-  static write(config: ConfigsType): ConfigsType {
+  static set(config: ConfigsObject): ConfigsObject {
     fs.writeFileSync(this.file, JSON.stringify(config, null, 2))
     return config
   }
 
-  static getPath(config: ConfigsType, path: string): RepositoryPath {
-    if(typeof config.paths[path] !== "undefined") {
-      return config.paths[path]
+  static getRepositories(config: ConfigsObject, path: string): RepositoryPath[] {
+    if(typeof config.paths[path] !== "undefined") { // From cache
+      if(config.paths[path].type === PathType.REPOSITORY) { // Refreshing old one
+        return [ config.paths[path] ]
+      }
     }
-    return null
+    return [ { // Fresh one
+      type: PathType.REPOSITORY,
+      workspaces: [],
+    } ]
   }
+
+  static setPID() {}
 
 }

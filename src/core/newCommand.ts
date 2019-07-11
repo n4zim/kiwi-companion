@@ -1,4 +1,4 @@
-import yargs = require("yargs")
+import yargs from "yargs"
 
 interface YargsModule<Args> {
   command: string

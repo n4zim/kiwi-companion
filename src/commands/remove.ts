@@ -10,7 +10,7 @@ interface Args {
 newCommand<Args>(this, {
   command: "remove [packages..]",
   description: "Remove package(s)",
-  handler: args => {
-    PackagesCommands.remove(args.packages)
+  handler: (args, path) => {
+    PackagesCommands.remove(path, args.packages)
   },
 })

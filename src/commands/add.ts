@@ -26,7 +26,7 @@ newCommand<Args>(this, {
       })
   },
 
-  handler: args => {
-    PackagesCommands.add(args.packages, args.dev, args.optional)
+  handler: (args, path) => {
+    PackagesCommands.add(path, args.packages, args.dev, args.optional)
   },
 })

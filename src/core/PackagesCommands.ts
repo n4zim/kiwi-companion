@@ -1,7 +1,7 @@
 import commandExists from "command-exists"
 import fs from "fs"
-import path from "path"
-import logger from "./logger"
+import { join } from "path"
+import logger from "./Logger"
 import { exec } from "child_process"
 
 enum PackagesBinary {
@@ -10,15 +10,14 @@ enum PackagesBinary {
 }
 
 export default class PackagesCommands {
-  private static directory = process.cwd()
   private static isYarnInstalled = commandExists.sync("yarn")
 
-  private static detectBinary(): PackagesBinary {
-    if(!fs.existsSync(path.join(this.directory, "package.json"))) {
+  private static detectBinary(path: string): PackagesBinary {
+    if(!fs.existsSync(join(path, "package.json"))) {
       logger.exit("No package.json found, you must init first")
     }
 
-    if(fs.existsSync(path.join(this.directory, "yarn.lock"))) {
+    if(fs.existsSync(join(path, "yarn.lock"))) {
       logger.info("Yarn detected")
       if(!this.isYarnInstalled) {
         logger.exit("Yarn is not installed")
@@ -26,7 +25,7 @@ export default class PackagesCommands {
       return PackagesBinary.YARN
     }
 
-    if(fs.existsSync(path.join(this.directory, "package-lock.json"))) {
+    if(fs.existsSync(join(path, "package-lock.json"))) {
       logger.info("NPM detected")
       return PackagesBinary.NPM
     }
@@ -49,8 +48,8 @@ export default class PackagesCommands {
     })
   }
 
-  static install() {
-    switch(this.detectBinary()) {
+  static install(path: string) {
+    switch(this.detectBinary(path)) {
       case PackagesBinary.NPM:
         this.execute("npm install")
         break
@@ -60,14 +59,14 @@ export default class PackagesCommands {
     }
   }
 
-  static add(packages: string[], isDev: boolean = false, isOptional: boolean = false) {
+  static add(path: string, packages: string[], isDev: boolean = false, isOptional: boolean = false) {
     if(isDev && isOptional) {
       logger.exit("You cannot add a dependency to dev and optional in the same time")
     }
 
     const command: string[] = []
 
-    switch(this.detectBinary()) {
+    switch(this.detectBinary(path)) {
 
       case PackagesBinary.NPM:
         command.push("npm install")
@@ -94,8 +93,8 @@ export default class PackagesCommands {
     this.execute([ ...command, ...packages ])
   }
 
-  static remove(packages: string[]) {
-    switch(this.detectBinary()) {
+  static remove(path: string, packages: string[]) {
+    switch(this.detectBinary(path)) {
 
       case PackagesBinary.NPM:
         this.execute([ "yarn remove", ...packages ])

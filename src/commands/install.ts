@@ -4,7 +4,7 @@ import PackagesCommands from "../core/PackagesCommands"
 newCommand(this, {
   command: "install",
   description: "Install and update the current packages",
-  handler: () => {
-    PackagesCommands.install()
+  handler: (args, path) => {
+    PackagesCommands.install(path)
   },
 })

@@ -1,27 +1,27 @@
 
-enum PathType { WORKSPACE, REPOSITORY }
+export enum PathType { WORKSPACE, REPOSITORY }
 
 // ----------------------------------------------------------------------------
 
-interface RepositoryPath {
+export interface RepositoryPath {
   type: PathType
   workspaces?: string[]
   pid?: number
 }
 
-interface WorkspacePath {
+export interface WorkspacePath {
   type: PathType
   repositories?: string[]
 }
 
 // ----------------------------------------------------------------------------
 
-interface ConfigsObject {
+export interface ConfigsObject {
   version: number
   paths: { [path: string]: RepositoryPath & WorkspacePath }
 }
 
-interface WorkspaceObject {
+export interface WorkspaceObject {
   version: number
   name: string
   repositories: string[]

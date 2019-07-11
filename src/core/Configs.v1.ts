@@ -1,8 +1,9 @@
-import fs from "fs"
-import { homedir } from "os"
 import { join } from "path"
+import { homedir } from "os"
+import { ConfigsObject, RepositoryPath, PathType, WorkspacePath } from "./Configs.v1.types"
+import fs from "fs"
 import { packageJson } from ".."
-import Logger from "./logger"
+import Logger from "./Logger"
 import ProgramCommands from "./ProgramCommands"
 
 export default class ConfigsV1 {

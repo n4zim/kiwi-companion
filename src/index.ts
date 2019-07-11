@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import yargs from "yargs"
 
+const packageJson = require("../package.json")
+
 yargs
   .scriptName("kiwi")
+  .usage(`Kiwi Bundle CLI : ${packageJson.description}`)
+  .version(packageJson.version)
   .commandDir("commands")
-  .usage('$0 <command> [args]')
   .demandCommand(1, "")
   .recommendCommands()
   .strict()

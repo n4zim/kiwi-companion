@@ -1,6 +1,6 @@
 {
   "name": "kiwi-bundle-cli",
-  "description": "Command all your code projects with one unique customizable CLI",
+  "description": "Automate your JS projects with one unique customizable CLI",
   "version": "1.0.0",
   "author": "Nazim Lachter <nazim@blueforest.fr>",
   "repository": "git@github.com:theblueforest/kiwi-bundle-cli.git",

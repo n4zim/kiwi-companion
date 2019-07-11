@@ -4,7 +4,7 @@ interface YargsModule<Args> {
   command: string
   description: string
   builder?: (yargs: yargs.Argv<Args>) => yargs.Argv<Args>
-  handler: (args: Args) => void
+  handler: (args: Args, path: string) => void
 }
 
 export default function newCommand<Args>(module: any, options: YargsModule<Args>) {
@@ -17,7 +17,8 @@ export default function newCommand<Args>(module: any, options: YargsModule<Args>
   }
 
   module.handler = (argv: Args & { _handled: boolean }) => {
-    options.handler(argv)
+    const path = process.cwd()
+    options.handler(argv, path)
     argv._handled = true
   }
 

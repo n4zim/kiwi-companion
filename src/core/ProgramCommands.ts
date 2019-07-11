@@ -7,25 +7,20 @@ import forever from "forever-monitor"
 
 export default class ProgramCommands {
 
-
-
-  static startProcess(path: string): number {
-    return 123
+  static start(path: RepositoryPath): RepositoryPath {
+    path = this.kill(path)
+    console.log(forever.start("ping dropin.link"))
+    path.pid = 2
+    return path
   }
 
-  static killProcess(path: PathRepository): PathRepository {
-    Logger.info(`Killing PID ${path.pid}`)
+  static kill(path: RepositoryPath): RepositoryPath {
     if(typeof path.pid !== "undefined") {
+      Logger.info(`Killing PID ${path.pid}`)
       forever.kill(path.pid)
       delete path.pid
-      return path
     }
-    Logger.info(`PID ${path.pid} was not found, ignoring...`)
-    return { type: PathType.REPOSITORY, workspaces: [] }
-  }
-
-  static start(path: string) {
-
+    return path
   }
 
 }

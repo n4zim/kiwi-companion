@@ -1,9 +1,9 @@
 import fs from "fs"
 import { homedir } from "os"
-import { join, dirname } from "path"
+import { join } from "path"
 import { packageJson } from ".."
 import Logger from "./logger"
-import forever from "forever-monitor"
+import ProgramCommands from "./ProgramCommands"
 
 export default class ConfigsV1 {
   private static file = join(homedir(), ".kiwi-bundle")
@@ -23,18 +23,41 @@ export default class ConfigsV1 {
     return config
   }
 
-  static getRepositories(config: ConfigsObject, path: string): RepositoryPath[] {
+  static getRepository(config: ConfigsObject, path: string): RepositoryPath {
     if(typeof config.paths[path] !== "undefined") { // From cache
       if(config.paths[path].type === PathType.REPOSITORY) { // Refreshing old one
-        return [ config.paths[path] ]
-      }
+        return config.paths[path]
+      } // Others path types will be replaced
     }
-    return [ { // Fresh one
+    return { // Fresh one
       type: PathType.REPOSITORY,
       workspaces: [],
-    } ]
+    }
   }
 
-  static setPID() {}
+  static getWorkspaceRepositoryPaths(config: ConfigsObject, path: string): string[] {
+    if(typeof config.paths[path] === "undefined") {
+      Logger.exit("Missing kiwi.yml and directory is not a workspace")
+    }
+
+    if(config.paths[path].type === PathType.WORKSPACE) { // Workspace from cache
+      const pathData: WorkspacePath = config.paths[path]
+      if(typeof pathData.repositories !== "undefined") {
+        return pathData.repositories
+      }
+      return []
+    }
+
+    delete config.paths[path]
+    ConfigsV1.set(config)
+
+    if(config.paths[path].type === PathType.REPOSITORY) { // Path was previously a Repository
+      ProgramCommands.kill(config.paths[path])
+      Logger.exit("Removed kiwi.yml, cache was cleaned")
+    }
+
+    Logger.exit("Unknown path type, cache was cleaned") // No Repository nor Workspace
+    return []
+  }
 
 }

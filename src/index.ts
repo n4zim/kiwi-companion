@@ -1,14 +1,11 @@
 #!/usr/bin/env node
-import program, { Command } from "commander"
-import chalk from "chalk"
+import yargs from "yargs"
 
-const packageJson = require("../../package.json")
-
-program
-  .name("kiwi")
-  .version(packageJson.version)
-  .description(packageJson.description)
-
-program
-  .command("install")
-  .description("sets up project dependencies")
+yargs
+  .scriptName("kiwi")
+  .commandDir("commands")
+  .usage('$0 <command> [args]')
+  .demandCommand(1, "")
+  .recommendCommands()
+  .strict()
+  .argv

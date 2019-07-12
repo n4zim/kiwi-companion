@@ -34,7 +34,7 @@ kiwi remove [PACKAGES NAMES...]
 
 ## Node commands
 
-### Start in development mode on a background task (TODO)
+### Start in development mode on a background task
 ```bash
 kiwi start
 ```

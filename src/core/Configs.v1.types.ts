@@ -1,7 +1,8 @@
 
-export enum PathType { WORKSPACE, REPOSITORY }
-
-// ----------------------------------------------------------------------------
+export enum PathType {
+  WORKSPACE = "KiwiBundleWorkspace",
+  REPOSITORY = "KiwiBundleRepository",
+}
 
 export interface RepositoryPath {
   type: PathType
@@ -13,8 +14,6 @@ export interface WorkspacePath {
   type: PathType
   repositories?: string[]
 }
-
-// ----------------------------------------------------------------------------
 
 export interface ConfigsObject {
   version: number

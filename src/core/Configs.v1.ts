@@ -7,12 +7,20 @@ import Logger from "./Logger"
 import ProgramCommands from "./ProgramCommands"
 
 export default class ConfigsV1 {
-  private static file = join(homedir(), ".kiwi-bundle")
+  private static dir = join(homedir(), ".kiwi-bundle")
+  private static logsDir = "logs"
+  private static file = "config.json"
 
   static get(): ConfigsObject {
-    if(fs.existsSync(this.file)) {
-      return JSON.parse(fs.readFileSync(this.file, "utf-8"))
+    if(!fs.existsSync(this.dir)) {
+      fs.mkdirSync(this.dir)
     }
+
+    const config = join(this.dir, this.file)
+    if(fs.existsSync(config)) {
+      return JSON.parse(fs.readFileSync(config, "utf-8"))
+    }
+
     return {
       version: packageJson.version,
       paths: {},
@@ -20,7 +28,7 @@ export default class ConfigsV1 {
   }
 
   static set(config: ConfigsObject): ConfigsObject {
-    fs.writeFileSync(this.file, JSON.stringify(config, null, 2))
+    fs.writeFileSync(join(this.dir, this.file), JSON.stringify(config, null, 2))
     return config
   }
 
@@ -59,6 +67,22 @@ export default class ConfigsV1 {
 
     Logger.exit("Unknown path type, cache was cleaned") // No Repository nor Workspace
     return []
+  }
+
+  private static getLogsDirectory(name: string): string {
+    const logsPath = join(this.dir, this.logsDir)
+    if(!fs.existsSync(logsPath)) {
+      fs.mkdirSync(logsPath)
+    }
+    return join(logsPath, name)
+  }
+
+  static writeLogs(name: string) {
+    return fs.openSync(this.getLogsDirectory(`${name}.log`), "a")
+  }
+
+  static writeErrorsLogs(name: string) {
+    return fs.openSync(this.getLogsDirectory(`${name}.errors.log`), "a")
   }
 
 }

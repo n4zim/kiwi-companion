@@ -4,15 +4,25 @@ import { join } from "path"
 import logger from "./Logger"
 import { exec } from "child_process"
 
-enum PackagesBinary {
-  NPM,
-  YARN,
+export enum PackagesBinary {
+  NPM = "npm",
+  YARN = "yarn",
 }
 
 export default class PackagesCommands {
   private static isYarnInstalled = commandExists.sync("yarn")
 
-  private static detectBinary(path: string): PackagesBinary {
+  private static execute(command: string|string[]) {
+    if(Array.isArray(command)) command = command.join(" ")
+    exec(command, (error, stdout) => {
+      if(error !== null) {
+        logger.exit(error.message)
+      }
+      console.log(stdout)
+    })
+  }
+
+  static detectBinary(path: string): PackagesBinary {
     if(!fs.existsSync(join(path, "package.json"))) {
       logger.exit("No package.json found, you must init first")
     }
@@ -36,16 +46,6 @@ export default class PackagesCommands {
     }
 
     return PackagesBinary.NPM
-  }
-
-  private static execute(command: string|string[]) {
-    if(Array.isArray(command)) command = command.join(" ")
-    exec(command, (error, stdout) => {
-      if(error !== null) {
-        logger.exit(error.message)
-      }
-      console.log(stdout)
-    })
   }
 
   static install(path: string) {

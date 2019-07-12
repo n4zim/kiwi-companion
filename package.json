@@ -15,15 +15,20 @@
     "cli": "./dist/index.js"
   },
   "devDependencies": {
+    "@types/blessed": "^0.1.11",
+    "@types/cli-table": "^0.3.0",
     "@types/command-exists": "^1.2.0",
     "@types/node": "^12.6.2",
     "@types/yargs": "^13.0.0",
     "typescript": "^3.5.3"
   },
   "dependencies": {
+    "blessed": "^0.1.81",
     "chalk": "^2.4.2",
+    "cli-table": "^0.3.1",
     "command-exists": "^1.2.8",
     "path": "^0.12.7",
+    "stmux": "^1.7.1",
     "yargs": "^13.2.4"
   }
 }

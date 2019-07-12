@@ -1,10 +1,10 @@
 import newCommand from "../core/newCommand"
 import ConfigsV1 from "../core/Configs.v1"
-import KiwiConfigs from "../core/KiwiConfigs"
 import { readFileSync } from "fs"
 import { join } from "path"
 import ProgramCommands from "../core/ProgramCommands"
 import Logger from "../core/Logger"
+import PackagesCommands from "../core/PackagesCommands"
 
 newCommand(this, {
   command: "start",
@@ -24,7 +24,8 @@ newCommand(this, {
       }
 
       const repository = ConfigsV1.getRepository(config, repositoryPath)
-      config.paths[repositoryPath] = ProgramCommands.start(repository, packageJson.scripts.start, packageJson.name)
+      const program = PackagesCommands.detectBinary(path)
+      config.paths[repositoryPath] = ProgramCommands.start(repository, [ program, "start" ])
     })
 
     ConfigsV1.set(config)

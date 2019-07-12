@@ -15,7 +15,9 @@ export default class ProgramCommands {
 
   static start(path: RepositoryPath, command: string, name: string): RepositoryPath {
     path = this.kill(path)
-    path.pid = this.spawn(command.split(" "), name).pid
+    const script = this.spawn(command.split(" "), name)
+    path.pid = script.pid
+    script.unref()
     return path
   }
 

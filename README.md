@@ -44,7 +44,7 @@ kiwi start
 kiwi logs
 ```
 
-### Stop background task(s) (TODO)
+### Stop background task(s)
 ```bash
 kiwi stop
 ```

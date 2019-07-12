@@ -5,6 +5,7 @@ import fs from "fs"
 import { packageJson } from ".."
 import Logger from "./Logger"
 import ProgramCommands from "./ProgramCommands"
+import KiwiConfigs from "./KiwiConfigs"
 
 export default class ConfigsV1 {
   private static dir = join(homedir(), ".kiwi-bundle")
@@ -67,6 +68,11 @@ export default class ConfigsV1 {
 
     Logger.exit("Unknown path type, cache was cleaned") // No Repository nor Workspace
     return []
+  }
+
+  static getCurrentPaths(path: string, config: ConfigsObject): string[] {
+    if(KiwiConfigs.exists(path)) return [ path ] // kiwi.yml found
+    return this.getWorkspaceRepositoryPaths(config, path) // No kiwi.yml
   }
 
   private static getLogsDirectory(name: string): string {

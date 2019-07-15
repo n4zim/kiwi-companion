@@ -5,7 +5,7 @@ export const packageJson = require("../package.json")
 
 yargs
   .scriptName("kiwi")
-  .usage(`Kiwi Bundle CLI : ${packageJson.description}`)
+  .usage(`Kiwi Companion : ${packageJson.description}`)
   .version(packageJson.version)
   .commandDir("commands")
   .demandCommand(1, "")

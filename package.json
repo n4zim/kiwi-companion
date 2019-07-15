@@ -1,9 +1,9 @@
 {
-  "name": "kiwi-bundle-cli",
+  "name": "kiwi-companion",
   "description": "Automate your JS projects with one unique customizable CLI",
   "version": "1.0.0",
   "author": "Nazim Lachter <nazim@blueforest.fr>",
-  "repository": "git@github.com:theblueforest/kiwi-bundle-cli.git",
+  "repository": "git@github.com:theblueforest/kiwi-companion.git",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "bin": {
@@ -27,6 +27,7 @@
     "chalk": "^2.4.2",
     "cli-table": "^0.3.1",
     "command-exists": "^1.2.8",
+    "dropin-recipes": "^1.1.2",
     "path": "^0.12.7",
     "stmux": "^1.7.1",
     "yargs": "^13.2.4"

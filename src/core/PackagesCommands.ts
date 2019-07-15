@@ -10,7 +10,7 @@ export enum PackagesBinary {
 }
 
 export default class PackagesCommands {
-  private static isYarnInstalled = commandExists.sync("yarn")
+  static isYarnInstalled = commandExists.sync("yarn")
 
   private static execute(command: string|string[]) {
     if(Array.isArray(command)) command = command.join(" ")

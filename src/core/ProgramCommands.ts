@@ -1,8 +1,9 @@
 import { RepositoryPath } from "./Configs.v1.types"
-import { spawn, ChildProcess } from "child_process"
+import { spawn, ChildProcess, SpawnOptions, exec } from "child_process"
 import Logger from "./Logger"
 import ConfigsV1 from "./Configs.v1"
-import { writeFileSync } from "fs";
+
+export type SpawnCallback = (error: boolean, data: string) => void
 
 export default class ProgramCommands {
 
@@ -14,11 +15,31 @@ export default class ProgramCommands {
     })
   }
 
-  private static spawn(commands: string[] = []): ChildProcess {
+  static spawn(commands: string[] = [], callback?: SpawnCallback): ChildProcess {
     if(commands.length === 0) Logger.exit("Start script is empty")
-    return spawn(commands[0], commands.slice(1), {
-      stdio: [ process.stdin, process.stdout, process.stderr ]
-    })
+
+    let options: SpawnOptions = {}
+
+    if(typeof callback === "undefined") {
+      options.stdio = [ process.stdin, process.stdout, process.stderr ]
+    }
+
+    const command = spawn(commands[0], commands.slice(1), options)
+
+    if(typeof callback !== "undefined") {
+      if(command.stdout !== null) {
+        command.stdout.on("data", (data: any) => {
+          callback(false, data.toString())
+        })
+      }
+      if(command.stderr !== null) {
+        command.stderr.on("data", (data: any) => {
+          callback(true, data.toString())
+        })
+      }
+    }
+
+    return command
   }
 
   static start(path: RepositoryPath, commands: string[]): RepositoryPath {

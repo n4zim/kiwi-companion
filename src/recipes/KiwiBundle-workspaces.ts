@@ -15,11 +15,12 @@ export interface Repository {
   host: string
   owner: string
   name: string
+  slug?: string
 }
 
 export interface Workspace {
-  slug: string
   name: string
+  slug: string
   version: number
   repositories: Repository[]
 }

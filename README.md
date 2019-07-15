@@ -1,10 +1,10 @@
 
-# Kiwi Bundle CLI
+# Kiwi Companion
 
 
 ## Install
 ```bash
-npm install -g kiwi-bundle-cli
+npm install -g kiwi-companion
 ```
 
 
@@ -34,19 +34,9 @@ kiwi remove [PACKAGES NAMES...]
 
 ## Node commands
 
-### Start in development mode on a background task
+### Start in development mode
 ```bash
 kiwi start
-```
-
-### See outputs of the currently launched process(es) (TODO)
-```bash
-kiwi logs
-```
-
-### Stop background task(s)
-```bash
-kiwi stop
 ```
 
 ### Build for production (TODO)
@@ -57,6 +47,14 @@ kiwi build
 ### Launch package(s) tests (TODO)
 ```bash
 kiwi test
+```
+
+
+## Workspaces commands
+
+### Add from Kiwi Recipes
+```bash
+kiwi workspaces import [RECIPE SLUG]
 ```
 
 

@@ -8,7 +8,7 @@ import PackagesCommands from "../core/PackagesCommands"
 
 newCommand(this, {
   command: "start",
-  description: "Start development mode (daemon)",
+  description: "Start development mode",
   handler: (args, path) => {
     let config = ConfigsV1.get()
 

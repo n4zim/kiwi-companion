@@ -1,5 +1,5 @@
 import { RepositoryPath } from "./Configs.v1.types"
-import { spawn, ChildProcess, SpawnOptions, exec } from "child_process"
+import { spawn, ChildProcess, SpawnOptions } from "child_process"
 import Logger from "./Logger"
 import ConfigsV1 from "./Configs.v1"
 
@@ -7,13 +7,13 @@ export type SpawnCallback = (error: boolean, data: string) => void
 
 export default class ProgramCommands {
 
-  private static spawnBackground(commands: string[] = [], name: string): ChildProcess {
+  /*private static spawnBackground(commands: string[] = [], name: string): ChildProcess {
     if(commands.length === 0) Logger.exit("Start script is empty")
     return spawn(commands[0], commands.slice(1), {
       detached: true,
       stdio: [ "ignore", ConfigsV1.writeLogs(name), ConfigsV1.writeErrorsLogs(name) ],
     })
-  }
+  }*/
 
   static spawn(commands: string[] = [], callback?: SpawnCallback): ChildProcess {
     if(commands.length === 0) Logger.exit("Start script is empty")
@@ -48,15 +48,15 @@ export default class ProgramCommands {
     return path
   }
 
-  static startBackground(path: RepositoryPath, command: string, name: string): RepositoryPath {
+  /*static startBackground(path: RepositoryPath, command: string, name: string): RepositoryPath {
     path = this.killBackground(path)
     const script = this.spawnBackground(command.split(" "), name)
     path.pid = script.pid
     script.unref()
     return path
-  }
+  }*/
 
-  static killBackground(path: RepositoryPath): RepositoryPath {
+  /*static killBackground(path: RepositoryPath): RepositoryPath {
     if(typeof path.pid !== "undefined") {
       Logger.info(`Killing process ${path.pid}`)
       try {
@@ -67,6 +67,6 @@ export default class ProgramCommands {
       delete path.pid
     }
     return path
-  }
+  }*/
 
 }

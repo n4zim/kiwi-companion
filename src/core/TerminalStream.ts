@@ -36,18 +36,17 @@ export class TerminalStream {
 	getChannel(index: number): SpawnCallback {
 		const channel = this.channels[index]
 		const color = COLORS[index % COLORS.length]
-		return (error, data) => {
 
+		return (error, data) => {
 			// Title
-			let title = `${channel}`
+			let whiteSpaces = ""
 			if(channel.length < this.maxNameLength) {
-				title += " ".repeat(this.maxNameLength - channel.length)
+				whiteSpaces += " ".repeat(this.maxNameLength - channel.length)
 			}
-			title = `${color(`${title} |`)} `
+			const title = `${color(`${whiteSpaces}${channel} |`)} `
 
 			// Output
-			const output = data.split("\n")
-			output.forEach(line => {
+			data.split("\n").forEach(line => {
 				process.stdout.write(title + chalk(line) + "\n")
 			})
 		}

@@ -10,9 +10,9 @@
     "kiwi": "./dist/index.js"
   },
   "scripts": {
-    "start": "mkdir -p dist && touch dist/index.js && chmod +x dist/index.js && NODE_ENV=dev tsc -w -p .",
-    "build": "rm -rf dist/ && NODE_ENV=prod tsc -p . && chmod +x dist/index.js",
-    "cli": "./dist/index.js"
+    "start": "mkdir -p dist && touch dist/index.js && chmod +x dist/index.js && tsc -w -p .",
+    "build": "rm -rf dist/ && tsc -p . && chmod +x dist/index.js",
+    "cli": "KIWI_COMPANION_LOCAL_PORT=8042 ./dist/index.js"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.11",

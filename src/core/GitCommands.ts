@@ -7,12 +7,11 @@ export default class GitCommands {
 
   static clone(repository: Repository, path: string, callback?: SpawnCallback) {
     ProgramCommands.spawn([
-      /*"git",
+      "git",
       "clone",
+      "--progress",
       `git@${repository.host}:${repository.owner}/${repository.name}.git`,
-      path,*/
-      "ls",
-      "-la",
+      path,
     ], callback)
   }
 

@@ -21,7 +21,7 @@ newCommand<Args>(this, {
 
     const filters = `{"slug":"=${args.slug}"}`
 
-    Workspaces.getOne(filters).then(workspace => {
+    Workspaces.getOne({ filters }).then(workspace => {
 
       Logger.info(`Creating "${workspace.data.name}" directory...`)
       const workspaceDir = join(path, workspace.data.name)

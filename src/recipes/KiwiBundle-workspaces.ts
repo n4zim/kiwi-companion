@@ -1,4 +1,4 @@
-import * as DROPin from "dropin-recipes"
+import * as Recipes from "dropin-recipes"
 
 /*
    ____  ____   ___  ____  _ _
@@ -25,10 +25,4 @@ export interface Workspace {
   repositories: Repository[]
 }
 
-export class Workspaces {
-
-  static getOne(filters: string): Promise<DROPin.Line<Workspace>> {
-    return DROPin.Request.getOneLine<Workspace>("KiwiBundle", "workspaces", { filters })
-  }
-
-}
+export const Workspaces = Recipes.RequestsHandler<Workspace>("KiwiBundle", "workspaces")

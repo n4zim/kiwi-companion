@@ -1,9 +1,8 @@
 import { RepositoryPath } from "./Configs.v1.types"
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
 import Logger from "./Logger"
-import ConfigsV1 from "./Configs.v1"
 
-export type SpawnCallback = (error: boolean, data: string) => void
+export type SpawnCallback = (error: boolean, data: string|null) => void
 
 export default class ProgramCommands {
 
@@ -27,16 +26,24 @@ export default class ProgramCommands {
     const command = spawn(commands[0], commands.slice(1), options)
 
     if(typeof callback !== "undefined") {
+      // Out
       if(command.stdout !== null) {
         command.stdout.on("data", (data: any) => {
           callback(false, data.toString())
         })
       }
+
+      // Errors
       if(command.stderr !== null) {
         command.stderr.on("data", (data: any) => {
           callback(true, data.toString())
         })
       }
+
+      // Exit callback
+      command.on("exit", () => {
+        callback(false, null)
+      })
     }
 
     return command

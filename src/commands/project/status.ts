@@ -1,10 +1,10 @@
-import newCommand from "../core/newCommand"
+import newCommand from "../../core/newCommand"
 import Table from "cli-table"
 import chalk from "chalk"
 
 newCommand(this, {
-  command: "status",
-  description: "Current project(s) statuses",
+  command: "[slug] status",
+  description: "Current project status",
   handler: (args, path) => {
     const table = new Table({ head: [ "Name", "Version", "Enhancements", "Server" ] })
     const projects = [

@@ -24,9 +24,14 @@ interface TerminalMulti {
 
 export class TerminalStream {
 	private channels: string[] = []
+	private callbacks: (() => void)[] = []
+	private totalCompleted = 0
 	private maxNameLength = 0
 
-	addChannel(name: string) {
+	addChannel(name: string, callback?: () => void) {
+		if(typeof callback !== "undefined") {
+			this.callbacks.push(callback)
+		}
 		this.channels.push(name)
 		if(name.length > this.maxNameLength) {
 			this.maxNameLength = name.length
@@ -38,18 +43,41 @@ export class TerminalStream {
 		const color = COLORS[index % COLORS.length]
 
 		return (error, data) => {
-			// Title
-			let whiteSpaces = ""
-			if(channel.length < this.maxNameLength) {
-				whiteSpaces += " ".repeat(this.maxNameLength - channel.length)
-			}
-			const title = `${color(`${whiteSpaces}${channel} |`)} `
+			if(data !== null) {
+				// Title
+				let whiteSpaces = ""
+				if(channel.length < this.maxNameLength) {
+					whiteSpaces += " ".repeat(this.maxNameLength - channel.length)
+				}
+				const title = `${color(`${whiteSpaces}${channel} |`)} `
 
-			// Output
-			data.split("\n").forEach(line => {
-				process.stdout.write(title + chalk(line) + "\n")
-			})
+				// Output
+				data.split("\n").forEach(line => {
+					process.stdout.write(title + chalk(line) + "\n")
+					/* if(typeof process.stdout.columns === "undefined") {
+					} else {
+						const maxColumns = process.stdout.columns - title.length
+						const regex = line.match(new RegExp(`.{1,${maxColumns}}`, "g"))
+						if(regex !== null) {
+							regex.forEach(subLine => {
+								process.stdout.write(title + chalk(subLine) + "\n")
+							})
+						}
+					}*/
+				})
+			} else {
+				console.log(this.totalCompleted)
+				if(++this.totalCompleted === this.channels.length) {
+				this.callbacks.forEach(callback => {
+					callback()
+				})
+			}
+			}
 		}
+	}
+
+	addCallback(callback: () => void) {
+		this.callbacks.push(callback)
 	}
 
 }

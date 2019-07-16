@@ -1,13 +1,13 @@
-import newCommand from "../core/newCommand"
-import ConfigsV1 from "../core/Configs.v1"
+import newCommand from "../../core/newCommand"
+import ConfigsV1 from "../../core/Configs.v1"
 import { readFileSync } from "fs"
 import { join } from "path"
-import ProgramCommands from "../core/ProgramCommands"
-import Logger from "../core/Logger"
-import PackagesCommands from "../core/PackagesCommands"
+import ProgramCommands from "../../core/ProgramCommands"
+import Logger from "../../core/Logger"
+import PackagesCommands from "../../core/PackagesCommands"
 
 newCommand(this, {
-  command: "start",
+  command: "[slug] start",
   description: "Start development mode",
   handler: (args, path) => {
     let config = ConfigsV1.get()

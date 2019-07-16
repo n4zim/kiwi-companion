@@ -8,18 +8,22 @@ npm install -g kiwi-companion
 ```
 
 
+## Projects
+
 ## Start a new project
-* Kiwi Bundle : `kiwi init` (TODO)
-* TypeScript : `kiwi init -t=typescript` (TODO)
-* Empty : `kiwi init -t=empty` (TODO)
-
-
-## NPM commands
+* Kiwi Bundle : `kiwi project new` (TODO)
+* TypeScript : `kiwi project new -t=typescript` (TODO)
+* Empty : `kiwi project new -t=empty` (TODO)
 
 ### Install dependencies packages
 ```bash
-kiwi install
+kiwi project [PROJECT] install
 ```
+
+## NPM commands
+
+
+
 
 ### Add new package(s)
 * Save on "dependencies" : `kiwi add [PACKAGES NAMES...]`

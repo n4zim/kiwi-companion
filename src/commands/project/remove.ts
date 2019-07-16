@@ -1,5 +1,5 @@
-import newCommand from "../core/newCommand"
-import PackagesCommands from "../core/PackagesCommands"
+import newCommand from "../../core/newCommand"
+import PackagesCommands from "../../core/PackagesCommands"
 
 interface Args {
   packages: string[]
@@ -8,7 +8,7 @@ interface Args {
 }
 
 newCommand<Args>(this, {
-  command: "remove [packages..]",
+  command: "[slug] remove [packages..]",
   description: "Remove package(s)",
   handler: (args, path) => {
     PackagesCommands.remove(path, args.packages)

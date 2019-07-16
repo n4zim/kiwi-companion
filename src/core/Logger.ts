@@ -3,7 +3,11 @@ import chalk from "chalk"
 class Logger {
 
   static info(message: string) {
-    console.error(chalk.blue(`[INFO] ${message}`))
+    console.log(chalk.blue(`[INFO] ${message}`))
+  }
+
+  static success(message: string) {
+    console.log(chalk.green(`[OK] ${message}`))
   }
 
   static exit(message: string) {

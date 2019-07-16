@@ -1,6 +1,6 @@
 import yargs from "yargs"
 
-interface YargsModule<Args> {
+export interface YargsModule<Args = {}> {
   command: string
   description: string
   builder?: (yargs: yargs.Argv<Args>) => yargs.Argv<Args>

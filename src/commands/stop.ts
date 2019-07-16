@@ -16,7 +16,7 @@ newCommand<Args>(this, {
 
     ConfigsV1.getCurrentPaths(path, config).forEach(repositoryPath => {
       const repository = ConfigsV1.getRepository(config, repositoryPath)
-      ProgramCommands.killBackground(repository)
+      // ProgramCommands.killBackground(repository)
     })
 
     ConfigsV1.set(config)

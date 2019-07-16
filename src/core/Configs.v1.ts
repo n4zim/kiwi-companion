@@ -62,7 +62,7 @@ export default class ConfigsV1 {
     ConfigsV1.set(config)
 
     if(config.paths[path].type === PathType.REPOSITORY) { // Path was previously a Repository
-      ProgramCommands.killBackground(config.paths[path])
+      // ProgramCommands.killBackground(config.paths[path])
       Logger.exit("Removed kiwi.yml, cache was cleaned")
     }
 

@@ -7,7 +7,7 @@ export interface YargsModule<Args = {}> {
   handler: (args: Args, path: string) => void
 }
 
-export default function newCommand<Args>(module: any, options: YargsModule<Args>) {
+export default function wrapper<Args>(module: any, options: YargsModule<Args>) {
 
   module.command = options.command
   module.desc = options.description

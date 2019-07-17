@@ -1,4 +1,4 @@
-import newCommand from "../../core/newCommand"
+import newCommand from "../../../core/wrapper"
 import Table from "cli-table"
 import chalk from "chalk"
 

@@ -1,5 +1,5 @@
-import newCommand from "../../core/newCommand"
-import PackagesCommands from "../../core/PackagesCommands"
+import newCommand from "../../../core/wrapper"
+import PackagesCommands from "../../../core/CommandsPackages"
 
 interface Args {
   packages: string[]

@@ -1,10 +1,10 @@
 import { RepositoryPath } from "./Configs.v1.types"
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
-import Logger from "./Logger"
+import Logger from "../../core/Logger"
 
 export type SpawnCallback = (error: boolean, data: string|null) => void
 
-export default class ProgramCommands {
+export default class Execute {
 
   /*private static spawnBackground(commands: string[] = [], name: string): ChildProcess {
     if(commands.length === 0) Logger.exit("Start script is empty")

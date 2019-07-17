@@ -1,23 +1,21 @@
 import { join } from "path"
 import { mkdir } from "fs"
-import newCommand from "../../core/newCommand"
-import Logger from "../../core/Logger"
-import GitCommands from "../../core/GitCommands"
-import { TerminalStream } from "../../core/TerminalStream"
-import { Workspaces } from "../../recipes/KiwiBundle-workspaces"
+import wrapper from "../core/wrapper"
+import Logger from "../core/Logger"
+import CommandsGit from "../core/CommandsGit"
+import { TerminalStream } from "../core/TerminalStream"
+import { Workspaces } from "../recipes/KiwiBundle-workspaces"
 
 interface Args {
   slug: string
 }
 
-newCommand<Args>(this, {
-  command: "import [slug]",
-  description: "Import a Kiwi Workspace",
-  builder: yargs => yargs.demandOption("slug"),
+wrapper<Args>(this, {
+  command: "import [workspace]",
+  description: "Import a Workspace from Kiwi Recipes",
+  builder: yargs => yargs.demandOption("workspace"),
   handler: (args, path) => {
-    if(!GitCommands.isGitInstalled) {
-      Logger.exit("Git must be installed on your system")
-    }
+    CommandsGit.checkIfAvailable()
 
     Workspaces.getOne({ f: `{"slug":"=${args.slug}"}` }).then(workspace => {
 
@@ -35,7 +33,7 @@ newCommand<Args>(this, {
         workspace.data.repositories.forEach((repository, index) => {
           const name = repository.slug || repository.name
           terminal.addChannel(name)
-          GitCommands.clone(repository, join(workspaceDir, name), terminal.getChannel(index))
+          CommandsGit.clone(repository, join(workspaceDir, name), terminal.getChannel(index))
         })
       })
 

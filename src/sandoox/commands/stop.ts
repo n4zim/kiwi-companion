@@ -1,6 +1,6 @@
-import newCommand from "../core/newCommand"
+import newCommand from "../../core/wrapper"
 import ConfigsV1 from "../core/Configs.v1"
-import ProgramCommands from "../core/ProgramCommands"
+import ProgramCommands from "../../core/execute"
 
 interface Args {
   packages: string[]

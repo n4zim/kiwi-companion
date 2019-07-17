@@ -1,12 +1,20 @@
 import commandExists from "command-exists"
+import Logger from "./Logger"
 import { Repository } from "../recipes/KiwiBundle-workspaces"
-import ProgramCommands, { SpawnCallback } from "./ProgramCommands"
+import { SpawnCallback } from "./execute"
+import execute from "./execute"
 
-export default class GitCommands {
-  static isGitInstalled = commandExists.sync("git")
+export default class CommandsGit {
+  private static isGitInstalled = commandExists.sync("git")
+
+  static checkIfAvailable() {
+    if(!this.isGitInstalled) {
+      Logger.exit("Git must be installed on your system")
+    }
+  }
 
   static clone(repository: Repository, path: string, callback?: SpawnCallback) {
-    ProgramCommands.spawn([
+    execute([
       "git",
       "clone",
       "--progress",
@@ -14,5 +22,4 @@ export default class GitCommands {
       path,
     ], callback)
   }
-
 }

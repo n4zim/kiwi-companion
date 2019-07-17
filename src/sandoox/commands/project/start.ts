@@ -1,10 +1,10 @@
-import newCommand from "../../core/newCommand"
+import newCommand from "../../../core/wrapper"
 import ConfigsV1 from "../../core/Configs.v1"
 import { readFileSync } from "fs"
 import { join } from "path"
-import ProgramCommands from "../../core/ProgramCommands"
-import Logger from "../../core/Logger"
-import PackagesCommands from "../../core/PackagesCommands"
+import ProgramCommands from "../../../core/execute"
+import Logger from "../../../core/Logger"
+import PackagesCommands from "../../../core/CommandsPackages"
 
 newCommand(this, {
   command: "[slug] start",
@@ -24,8 +24,8 @@ newCommand(this, {
       }
 
       const repository = ConfigsV1.getRepository(config, repositoryPath)
-      const program = PackagesCommands.detectBinary(path)
-      config.paths[repositoryPath] = ProgramCommands.start(repository, [ program, "start" ])
+      // const program = PackagesCommands.detectBinary(path)
+      // config.paths[repositoryPath] = ProgramCommands.start(repository, [ program, "start" ])
     })
 
     ConfigsV1.set(config)

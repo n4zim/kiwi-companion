@@ -1,5 +1,5 @@
-import newCommand from "../../core/newCommand"
-import PackagesCommands from "../../core/PackagesCommands"
+import wrapper from "../../../core/wrapper"
+import CommandsPackages from "../../../core/CommandsPackages"
 
 interface Args {
   packages: string[]
@@ -7,7 +7,7 @@ interface Args {
   optional?: boolean
 }
 
-newCommand<Args>(this, {
+wrapper<Args>(this, {
   command: "add [packages..]",
   description: "Add new package(s)",
 
@@ -27,6 +27,6 @@ newCommand<Args>(this, {
   },
 
   handler: (args, path) => {
-    PackagesCommands.add(path, args.packages, args.dev, args.optional)
+    CommandsPackages.add(path, args.packages, args.dev, args.optional)
   },
 })

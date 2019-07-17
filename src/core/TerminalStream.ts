@@ -1,4 +1,4 @@
-import { SpawnCallback } from "./ProgramCommands"
+import { SpawnCallback } from "./execute"
 import { TerminalMulti } from "./TerminalMulti"
 
 export class TerminalStream {

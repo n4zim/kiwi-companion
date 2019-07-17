@@ -1,16 +1,16 @@
 import commandExists from "command-exists"
 import fs from "fs"
 import { join } from "path"
-import logger from "./Logger"
 import { exec } from "child_process"
+import logger from "./Logger"
 
 export enum PackagesBinary {
   NPM = "npm",
   YARN = "yarn",
 }
 
-export default class PackagesCommands {
-  static isYarnInstalled = commandExists.sync("yarn")
+export default class CommandsPackages {
+  private static isYarnInstalled = commandExists.sync("yarn")
 
   private static execute(command: string|string[]) {
     if(Array.isArray(command)) command = command.join(" ")
@@ -22,7 +22,7 @@ export default class PackagesCommands {
     })
   }
 
-  static detectBinary(path: string): PackagesBinary {
+  private static detectBinary(path: string): PackagesBinary {
     if(!fs.existsSync(join(path, "package.json"))) {
       logger.exit("No package.json found, you must init first")
     }

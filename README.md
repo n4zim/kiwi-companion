@@ -11,28 +11,36 @@ npm install -g kiwi-companion
 ## Projects
 
 ## Start a new project
-* Kiwi Bundle : `kiwi project new` (TODO)
-* TypeScript : `kiwi project new -t=typescript` (TODO)
-* Empty : `kiwi project new -t=empty` (TODO)
+* Kiwi Bundle : `kiwi init` (TODO)
+* TypeScript : `kiwi init -t=typescript` (TODO)
+* Empty : `kiwi init -t=empty` (TODO)
 
-### Install dependencies packages
-```bash
-kiwi project [PROJECT] install
-```
 
 ## NPM commands
 
-
-
+### Install dependencies packages
+```bash
+kiwi install [WORKSPACE:PROJECT]
+```
 
 ### Add new package(s)
-* Save on "dependencies" : `kiwi add [PACKAGES NAMES...]`
-* Save on "devDependencies" : `kiwi add --dev [PACKAGES NAMES...]`
-* Save on "optionalDependencies" : `kiwi add --optional [PACKAGES NAMES...]`
+* Save on "dependencies" : `kiwi add [WORKSPACE:PROJECT] [PACKAGE(S) NAME(S)]`
+* Save on "devDependencies" : `kiwi add [WORKSPACE:PROJECT] --dev [PACKAGE(S) NAME(S)]`
+* Save on "optionalDependencies" : `kiwi add [WORKSPACE:PROJECT] --optional [PACKAGE(S) NAME(S)]`
 
 ### Remove package(s)
 ```bash
-kiwi remove [PACKAGES NAMES...]
+kiwi remove [WORKSPACE:PROJECT] [PACKAGE(S) NAME(S)]
+```
+
+### Reinstall all dependencies and links (TODO)
+```bash
+kiwi clean [WORKSPACE:PROJECT]
+```
+
+### Send your package to NPM
+```bash
+kiwi publish [WORKSPACE:PROJECT]
 ```
 
 
@@ -40,17 +48,17 @@ kiwi remove [PACKAGES NAMES...]
 
 ### Start in development mode
 ```bash
-kiwi start
+kiwi start [WORKSPACE:PROJECT]
 ```
 
-### Build for production (TODO)
+### Build for production
 ```bash
-kiwi build
+kiwi build [WORKSPACE:PROJECT]
 ```
 
-### Launch package(s) tests (TODO)
+### Launch package(s) tests
 ```bash
-kiwi test
+kiwi test [WORKSPACE:PROJECT]
 ```
 
 
@@ -58,19 +66,15 @@ kiwi test
 
 ### Add from Kiwi Recipes
 ```bash
-kiwi workspaces import [RECIPE SLUG]
+kiwi import [WORKSPACE]
 ```
 
 
 ## Git commands
 
-There are two different levels :
-- inside a repository
-- inside a Kiwi Workspace (will act for each repository inside)
-
 ### Current status (TODO)
 ```bash
-kiwi status
+kiwi status [WORKSPACE:PROJECT]
 ```
 
 ### Add new enhancement (TODO)

@@ -1,7 +1,7 @@
-import newCommand from "../../core/wrapper"
 import blessed from "blessed"
+import { wrapper } from "../../core/wrapper"
 
-newCommand(this, {
+wrapper(this, {
   command: "ps",
   description: "Current project(s) statuses",
   handler: (args, path) => {

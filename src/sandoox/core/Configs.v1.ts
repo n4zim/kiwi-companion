@@ -1,9 +1,9 @@
 import { join } from "path"
 import { homedir } from "os"
-import { ConfigsObject, RepositoryPath, PathType, WorkspacePath } from "./Configs.v1.types"
 import fs from "fs"
+import { ConfigsObject, RepositoryPath, PathType, WorkspacePath } from "./Configs.v1.types"
 import { packageJson } from "../.."
-import Logger from "../../core/Logger"
+import { Logger } from "../../core/Logger"
 import KiwiConfigs from "./KiwiConfigs"
 
 export default class ConfigsV1 {

@@ -1,5 +1,5 @@
-import wrapper from "../../../core/wrapper"
-import CommandsPackages from "../../../core/CommandsPackages"
+import { wrapper } from "../../../core/wrapper"
+import { CommandsPackages } from "../../../core/CommandsPackages"
 
 wrapper(this, {
   command: "install",

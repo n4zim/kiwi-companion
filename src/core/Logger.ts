@@ -1,6 +1,6 @@
 import chalk from "chalk"
 
-export default class Logger {
+export class Logger {
 
   static info(message: string) {
     console.log(chalk.blue(`[INFO] ${message}`))

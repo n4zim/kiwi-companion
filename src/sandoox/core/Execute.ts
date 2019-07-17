@@ -1,6 +1,6 @@
 import { RepositoryPath } from "./Configs.v1.types"
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
-import Logger from "../../core/Logger"
+import { Logger } from "../../core/Logger"
 
 export type SpawnCallback = (error: boolean, data: string|null) => void
 

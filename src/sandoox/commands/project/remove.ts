@@ -1,5 +1,5 @@
-import newCommand from "../../../core/wrapper"
-import PackagesCommands from "../../../core/CommandsPackages"
+import { wrapper } from "../../../core/wrapper"
+import { CommandsPackages } from "../../../core/CommandsPackages"
 
 interface Args {
   packages: string[]
@@ -7,10 +7,10 @@ interface Args {
   optional?: boolean
 }
 
-newCommand<Args>(this, {
+wrapper<Args>(this, {
   command: "[slug] remove [packages..]",
   description: "Remove package(s)",
   handler: (args, path) => {
-    PackagesCommands.remove(path, args.packages)
+    CommandsPackages.remove(path, args.packages)
   },
 })

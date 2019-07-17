@@ -2,8 +2,8 @@
 import readline from "readline"
 import Table from "cli-table"
 import chalk from "chalk"
-import Logger from "../core/Logger"
-import { TerminalMulti } from "./TerminalMulti";
+import { Logger } from "../core/Logger"
+import { TerminalMulti } from "./TerminalMulti"
 
 interface Stream {
   filter: number

@@ -2,21 +2,21 @@ import commandExists from "command-exists"
 import fs from "fs"
 import { join } from "path"
 import { exec } from "child_process"
-import logger from "./Logger"
+import { Logger } from "./Logger"
 
 export enum PackagesBinary {
   NPM = "npm",
   YARN = "yarn",
 }
 
-export default class CommandsPackages {
+export class CommandsPackages {
   private static isYarnInstalled = commandExists.sync("yarn")
 
   private static execute(command: string|string[]) {
     if(Array.isArray(command)) command = command.join(" ")
     exec(command, (error, stdout) => {
       if(error !== null) {
-        logger.exit(error.message)
+        Logger.exit(error.message)
       }
       console.log(stdout)
     })
@@ -24,24 +24,24 @@ export default class CommandsPackages {
 
   private static detectBinary(path: string): PackagesBinary {
     if(!fs.existsSync(join(path, "package.json"))) {
-      logger.exit("No package.json found, you must init first")
+      Logger.exit("No package.json found, you must init first")
     }
 
     if(fs.existsSync(join(path, "yarn.lock"))) {
-      logger.info("Yarn detected")
+      Logger.info("Yarn detected")
       if(!this.isYarnInstalled) {
-        logger.exit("Yarn is not installed")
+        Logger.exit("Yarn is not installed")
       }
       return PackagesBinary.YARN
     }
 
     if(fs.existsSync(join(path, "package-lock.json"))) {
-      logger.info("NPM detected")
+      Logger.info("NPM detected")
       return PackagesBinary.NPM
     }
 
     if(this.isYarnInstalled) {
-      logger.info("Yarn was detected and will be used")
+      Logger.info("Yarn was detected and will be used")
       return PackagesBinary.YARN
     }
 
@@ -61,7 +61,7 @@ export default class CommandsPackages {
 
   static add(path: string, packages: string[], isDev: boolean = false, isOptional: boolean = false) {
     if(isDev && isOptional) {
-      logger.exit("You cannot add a dependency to dev and optional in the same time")
+      Logger.exit("You cannot add a dependency to dev and optional in the same time")
     }
 
     const command: string[] = []

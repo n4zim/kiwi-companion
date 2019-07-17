@@ -1,10 +1,10 @@
 import commandExists from "command-exists"
-import Logger from "./Logger"
+import { Logger } from "./Logger"
 import { Repository } from "../recipes/KiwiBundle-workspaces"
 import { SpawnCallback } from "./execute"
-import execute from "./execute"
+import { execute } from "./execute"
 
-export default class CommandsGit {
+export class CommandsGit {
   private static isGitInstalled = commandExists.sync("git")
 
   static checkIfAvailable() {

@@ -1,12 +1,10 @@
-import newCommand from "../../../core/wrapper"
-import ConfigsV1 from "../../core/Configs.v1"
 import { readFileSync } from "fs"
+import ConfigsV1 from "../../core/Configs.v1"
+import { wrapper } from "../../../core/wrapper"
 import { join } from "path"
-import ProgramCommands from "../../../core/execute"
-import Logger from "../../../core/Logger"
-import PackagesCommands from "../../../core/CommandsPackages"
+import { Logger } from "../../../core/Logger"
 
-newCommand(this, {
+wrapper(this, {
   command: "[slug] start",
   description: "Start development mode",
   handler: (args, path) => {

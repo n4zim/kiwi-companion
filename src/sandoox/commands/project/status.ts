@@ -1,8 +1,8 @@
-import newCommand from "../../../core/wrapper"
 import Table from "cli-table"
 import chalk from "chalk"
+import { wrapper } from "../../../core/wrapper"
 
-newCommand(this, {
+wrapper(this, {
   command: "[slug] status",
   description: "Current project status",
   handler: (args, path) => {

@@ -1,6 +1,5 @@
-import newCommand from "../../core/wrapper"
+import { wrapper } from "../../core/wrapper"
 import ConfigsV1 from "../core/Configs.v1"
-import ProgramCommands from "../../core/execute"
 
 interface Args {
   packages: string[]
@@ -8,7 +7,7 @@ interface Args {
   optional?: boolean
 }
 
-newCommand<Args>(this, {
+wrapper<Args>(this, {
   command: "stop",
   description: "Stop project(s) processes",
   handler: (args, path) => {

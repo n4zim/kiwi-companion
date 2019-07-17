@@ -1,7 +1,7 @@
-import newCommand from "../../core/wrapper"
+import { wrapper } from "../../core/wrapper"
 import { TerminalFilters } from "../../core/TerminalFilters";
 
-newCommand(this, {
+wrapper(this, {
   command: "start",
   description: "DEBUG",
   handler: (args, path) => {

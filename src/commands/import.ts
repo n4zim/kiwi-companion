@@ -1,10 +1,10 @@
 import { join } from "path"
 import { mkdir } from "fs"
-import wrapper from "../core/wrapper"
-import Logger from "../core/Logger"
-import CommandsGit from "../core/CommandsGit"
-import { TerminalStream } from "../core/TerminalStream"
+import { wrapper } from "../core/wrapper"
+import { CommandsGit } from "../core/CommandsGit"
+import { Logger } from "../core/Logger"
 import { Workspaces } from "../recipes/KiwiBundle-workspaces"
+import { TerminalStream } from "../core/TerminalStream"
 
 interface Args {
   slug: string

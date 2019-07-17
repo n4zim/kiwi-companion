@@ -1,9 +1,9 @@
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
-import Logger from "./Logger"
+import { Logger } from "./Logger"
 
 export type SpawnCallback = (error: boolean, data: string|null) => void
 
-export default function execute(commands: string[] = [], callback?: SpawnCallback): ChildProcess {
+export function execute(commands: string[] = [], callback?: SpawnCallback): ChildProcess {
   if(commands.length === 0) Logger.exit("Execute command is empty")
 
   let options: SpawnOptions = {}

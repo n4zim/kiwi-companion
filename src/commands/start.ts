@@ -10,10 +10,10 @@ newCommand(this, {
 
     const terminal = new TerminalFilters(projects)
 
-    let count = 0
+    let counts = [ 0, 0, 0, 0, 0, 0 ]
     setInterval(() => {
       projects.forEach((project, index) => {
-        terminal.addToStream(index, project + count++)
+        terminal.addToStream(index, project + "\t" + counts[index]++)
       })
     }, 1000)
 

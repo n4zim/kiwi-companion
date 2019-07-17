@@ -3,57 +3,74 @@ import readline from "readline"
 import Table from "cli-table"
 import chalk from "chalk"
 import Logger from "../core/Logger"
+import { TerminalMulti } from "./TerminalMulti";
+
+interface Stream {
+  filter: number
+  text: string
+  displayed: boolean
+}
 
 export class TerminalFilters {
   private columns: string[]
   private columnsChars: number
+  private streams: Stream[] = []
   private currentColumn = 0
+  private multi: TerminalMulti
   private previousLinesToRemove = 0
-  private streams: { filter: number, text: string }[] = []
+  private currentLines = 0
 
   constructor(filters: string[]) {
+    // Columns
     this.columns = [ "ALL", ...filters ]
-
-    this.columnsChars = this.columns.join("---").length + 4
+    this.columnsChars = this.columns.join("   ").length + 4
     this.checkColumnsCount()
 
+    // Multi terminal for ALL
+    this.multi = new TerminalMulti(filters)
+
+    // Inputs
     if(typeof process.stdin.setRawMode !== "undefined") {
       process.stdin.setRawMode(true)
     }
-
     process.stdin.resume()
-
     process.stdin.on("data", this.handleChunks.bind(this))
 
-    process.stdout.write("\x1b[H\x1b[2J") // Clear
+    // Clear
+    process.stdout.write("\x1b[H\x1b[2J")
 
+    // Update
     this.update()
   }
 
   addToStream(filterIndex: number, text: string) {
-    this.streams.push({ filter: filterIndex, text })
+    const stream: Stream = { filter: filterIndex, text, displayed: false }
     if(this.currentColumn === 0 || this.currentColumn === filterIndex + 1) { // ALL or current filter
-      this.update(text)
+      stream.displayed = true
+      this.update([ stream ])
     }
+    this.streams.push(stream)
   }
 
-  private update(text?: string | string[]) {
+  private getLine(stream: Stream) {
+    if(this.currentColumn === 0) { // ALL
+      return this.multi.getLine(stream.text, stream.filter)
+    }
+    return this.multi.getLine(stream.text) // Another filter
+  }
+
+  private update(streams: Stream[] = []) {
     this.checkColumnsCount()
 
     if(this.previousLinesToRemove !== 0) {
       readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
-      readline.clearLine(process.stdout, 0)
+      readline.clearLine(process.stdout, 1)
     }
 
-    if(typeof text !== "undefined") {
-      if(Array.isArray(text)) {
-        text.forEach(currentText => {
-          process.stdout.write(currentText + "\n")
-        })
-      } else {
-        process.stdout.write(text + "\n")
-      }
-    }
+    streams.forEach(stream => {
+      process.stdout.write(this.getLine(stream))
+      this.currentLines++
+    })
 
     const table = new Table({
       head: this.columns.map((project, current) => {
@@ -74,30 +91,18 @@ export class TerminalFilters {
   }
 
   private updateCurrentStream(previous: number) {
-    // Current lines
-    let linesToClean = this.previousLinesToRemove
-    if(previous === 0) { // Was previously at ALL
-      linesToClean += this.streams.length
-    } else { // Was previously a filter
-      linesToClean += this.streams.filter(s => s.filter === previous - 1).length
-    }
+    // Clean only if outputs has been made
+    if(this.currentLines !== 0) this.previousLinesToRemove = 0
+    this.currentLines = 0
 
-    // Clear
-    readline.clearLine(process.stdout, 0) // Current line
-    for(let line = linesToClean - 1; line >= 0; line--) {
-      readline.moveCursor(process.stdout, 0, -1)
-      readline.clearLine(process.stdout, 0) // Previous lines
-    }
-
-    // Cancel update clear
-    this.previousLinesToRemove = 0
-
-    // New text
-    if(this.currentColumn === 0) { // ALL
-      this.update(this.streams.map(s => s.text))
-    } else { // Active filter
-      this.update(this.streams.filter(s => s.filter === this.currentColumn - 1).map(s => s.text))
-    }
+    // Get unseen outputs
+    this.update(this.streams.reduce((streams: Stream[], stream, index) => {
+      if(!stream.displayed && (this.currentColumn === 0 || stream.filter === this.currentColumn - 1)) {
+        this.streams[index].displayed = true
+        streams.push(stream)
+      }
+      return streams
+    }, []))
   }
 
   private handleChunks(chunk: any) {
@@ -118,6 +123,20 @@ export class TerminalFilters {
           this.updateCurrentStream(this.currentColumn + 1)
         }
       }
+    }
+  }
+
+  private clearAll(previous: number) {
+    // Clear
+    readline.cursorTo(process.stdout, 0, 0)
+    readline.clearScreenDown(process.stdout)
+    this.previousLinesToRemove = 0 // Cancel update clear
+
+    // Old text
+    if(this.currentColumn === 0) { // ALL
+      this.update(this.streams)
+    } else { // Active filter
+      this.update(this.streams.filter(s => s.filter === this.currentColumn - 1))
     }
   }
 

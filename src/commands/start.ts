@@ -6,16 +6,16 @@ newCommand(this, {
   description: "DEBUG",
   handler: (args, path) => {
 
-    const projects = [ "recipes-ts", "api", "ui", "kiwi", "cli", "kiwi-cli" ]
+    const projects = [ "rec", "api", ] // "ui", "kiwi", "cli", "kiwi-cli" ]
 
     const terminal = new TerminalFilters(projects)
 
     let counts = [ 0, 0, 0, 0, 0, 0 ]
     setInterval(() => {
       projects.forEach((project, index) => {
-        terminal.addToStream(index, project + "\t" + counts[index]++)
+        terminal.addToStream(index, ""+counts[index]++)
       })
-    }, 1000)
+    }, 2000)
 
   },
 })

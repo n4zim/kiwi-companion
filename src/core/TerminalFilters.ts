@@ -8,6 +8,7 @@ import { TerminalMulti } from "./TerminalMulti";
 interface Stream {
   filter: number
   text: string
+  error: boolean
   displayed: boolean
 }
 
@@ -24,7 +25,6 @@ export class TerminalFilters {
     // Columns
     this.columns = [ "ALL", ...filters ]
     this.columnsChars = this.columns.join("   ").length + 4
-    this.checkColumnsCount()
 
     // Multi terminal for ALL
     this.multi = new TerminalMulti(filters)
@@ -43,61 +43,82 @@ export class TerminalFilters {
     this.update()
   }
 
-  addToStream(filterIndex: number, text: string) {
-    const stream: Stream = { filter: filterIndex, text, displayed: false }
-    if(this.currentColumn === 0 || this.currentColumn === filterIndex + 1) { // ALL or current filter
+  addToStream(filter: number, text: string, error = false) {
+    const stream: Stream = { filter, text, error, displayed: false }
+    const streamsToDisplay = []
+
+    // ALL or current filter
+    if(this.currentColumn === 0 || this.currentColumn === filter + 1) {
       stream.displayed = true
-      this.update([ stream ])
+      streamsToDisplay.push(stream)
     }
+
     this.streams.push(stream)
+    this.update(streamsToDisplay)
   }
 
-  private getLine(stream: Stream) {
-    if(this.currentColumn === 0) { // ALL
-      return this.multi.getLine(stream.text, stream.filter)
-    }
-    return this.multi.getLine(stream.text) // Another filter
+  private getTable() {
+    // process.stdout.write(JSON.stringify(this.streams) + "\n")
+    return new Table({
+      head: this.columns.map((column, columnIndex) => {
+        // Current
+        if(columnIndex === this.currentColumn) {
+          return chalk.bgBlue(chalk.white(column))
+        }
+
+        // Not ALL
+        if(columnIndex !== 0) {
+          const unseen = this.streams.filter(s => !s.displayed && columnIndex === s.filter + 1)
+          if(unseen.filter(s => s.error).length !== 0) { // Unseen errors
+            return chalk.red(column)
+          }
+          if(unseen.length !== 0) { // Unseen new inputs
+            return chalk.green(column)
+          }
+        }
+
+        // Default color
+        return chalk.white(column)
+      }),
+    }).toString()
   }
 
   private update(streams: Stream[] = []) {
-    this.checkColumnsCount()
+    // No enough columns
+    if(typeof process.stdout.columns !== "undefined" && this.columnsChars > process.stdout.columns) {
+      Logger.exit(`Too small TTY, a minimum of ${this.columnsChars} columns is needed`)
+    }
 
+    // Remove table if needed
     if(this.previousLinesToRemove !== 0) {
       readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
       readline.clearLine(process.stdout, 1)
     }
 
-    streams.forEach(stream => {
-      process.stdout.write(this.getLine(stream))
+    // Add current lines
       this.currentLines++
+    streams.forEach(stream => {
+      if(this.currentColumn === 0) { // ALL
+        process.stdout.write(this.multi.getLine(stream.text, stream.filter))
+      } else { // Filter
+        process.stdout.write(this.multi.getLine(stream.text))
+      }
     })
 
-    const table = new Table({
-      head: this.columns.map((project, current) => {
-        if(current === this.currentColumn) return chalk.blue(project)
-        return chalk.white(project)
-      }),
-    }).toString()
-
+    // Generate table
+    const table = this.getTable()
     process.stdout.write(table + "\n")
-
     this.previousLinesToRemove = table.split(/\r\n|\r|\n/).length
   }
 
-  private checkColumnsCount() {
-    if(typeof process.stdout.columns !== "undefined" && this.columnsChars > process.stdout.columns) {
-      Logger.exit(`Too small TTY, a minimum of ${this.columnsChars} columns is required`)
-    }
-  }
-
-  private updateCurrentStream(previous: number) {
+  private updateCurrentStream() {
     // Clean only if outputs has been made
     if(this.currentLines !== 0) this.previousLinesToRemove = 0
     this.currentLines = 0
 
     // Get unseen outputs
     this.update(this.streams.reduce((streams: Stream[], stream, index) => {
-      if(!stream.displayed && (this.currentColumn === 0 || stream.filter === this.currentColumn - 1)) {
+      if(!stream.displayed && (this.currentColumn === 0 || stream.filter + 1 === this.currentColumn)) {
         this.streams[index].displayed = true
         streams.push(stream)
       }
@@ -115,28 +136,14 @@ export class TerminalFilters {
       if(chunk[2] === 67) { // Right
         if(this.currentColumn !== this.columns.length - 1) {
           this.currentColumn++
-          this.updateCurrentStream(this.currentColumn - 1)
+          this.updateCurrentStream()
         }
       } else if(chunk[2] === 68) { // Left
         if(this.currentColumn !== 0) {
           this.currentColumn--
-          this.updateCurrentStream(this.currentColumn + 1)
+          this.updateCurrentStream()
         }
       }
-    }
-  }
-
-  private clearAll(previous: number) {
-    // Clear
-    readline.cursorTo(process.stdout, 0, 0)
-    readline.clearScreenDown(process.stdout)
-    this.previousLinesToRemove = 0 // Cancel update clear
-
-    // Old text
-    if(this.currentColumn === 0) { // ALL
-      this.update(this.streams)
-    } else { // Active filter
-      this.update(this.streams.filter(s => s.filter === this.currentColumn - 1))
     }
   }
 

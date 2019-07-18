@@ -6,7 +6,7 @@ wrapper(this, {
   description: "DEBUG",
   handler: (args, path) => {
 
-    const projects = [ "recipes-ts", "api", "ui", "kiwi", "cli", "kiwi-cli" ]
+    /*const projects = [ "recipes-ts", "api", "ui", "kiwi", "cli", "kiwi-cli" ]
 
     const terminal = new Terminal(projects)
 
@@ -15,7 +15,7 @@ wrapper(this, {
       projects.forEach((project, index) => {
         terminal.addStream(index, ""+counts[index]++)
       })
-    }, 2000)
+    }, 2000)*/
 
   },
 })

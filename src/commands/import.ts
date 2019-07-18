@@ -29,13 +29,17 @@ wrapper<Args>(this, {
         const terminal = new Terminal(titles)
 
         terminal.addCallback(() => {
-          Logger.success(`Workspace ${workspace.data.name} imported`)
+          Logger.success(`Workspace ${workspace.data.name} imported`, (loggerOutput, loggerError) => {
+            terminal.addStream(loggerOutput, loggerError)
+          })
         })
 
         workspace.data.repositories.forEach((repository, index) => {
           CommandsGit.clone(repository, join(workspaceDir, titles[index]), (output, error) => {
-            terminal.addStream(index, output, error, () => {
-              Logger.success(`Repository ${repository.name} cloned`)
+            terminal.addStream(output, error, index, () => {
+              Logger.success(`Repository ${repository.name} cloned`, (loggerOutput, loggerError) => {
+                terminal.addStream(loggerOutput, loggerError)
+              })
             })
           })
         })

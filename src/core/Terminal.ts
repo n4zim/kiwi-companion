@@ -6,16 +6,19 @@ import { Logger } from "./Logger"
 import { TerminalLinesGenerator, splitTerminalLines } from "./TerminalLinesGenerator"
 
 interface Stream {
-  index: number
   text: string
   error: boolean
+}
+
+interface IndexStream extends Stream {
+  index: number
 }
 
 export class Terminal {
   private columns: string[]
   private generator: TerminalLinesGenerator
   private barCharsCount: number = 0
-  private unseen: Stream[] = []
+  private unseen: IndexStream[] = []
   private currentColumn = 0
   private previousLinesToRemove = 0
   private hasChanges = false
@@ -37,19 +40,22 @@ export class Terminal {
     this.update()
   }
 
-  addStream(index: number, text: string | null, error = false, callback?: () => void) {
+  addStream(text: string | null, error = false, index?: number, callback?: () => void) {
     if(text === null) {
       if(typeof callback !== "undefined") {
         callback()
       }
       if(++this.finished === this.columns.length - 1) {
         process.stdin.pause()
+        readline.clearScreenDown(process.stdout)
         this.callbacks.forEach(finishCallback => {
           finishCallback()
         })
       }
+    } else if(typeof index === "undefined") {
+      this.update([], [ { text, error } ])
     } else {
-      const stream: Stream = { index, text, error }
+      const stream: IndexStream = { index, text, error }
       if(this.currentColumn === 0 || this.currentColumn === index + 1) { // ALL or current filter
         this.update([ stream ])
       } else { // Other filters
@@ -88,7 +94,7 @@ export class Terminal {
     }).toString()
   }
 
-  private update(streams: Stream[] = []) {
+  private update(streams: IndexStream[] = [], externalStreams: Stream[] = []) {
     // No enough columns
     if(typeof process.stdout.columns !== "undefined" && this.barCharsCount > process.stdout.columns) {
       Logger.exit(`Too small TTY, a minimum of ${this.barCharsCount} columns is needed`)
@@ -100,11 +106,7 @@ export class Terminal {
       readline.clearScreenDown(process.stdout)
     }
 
-    // Generate table
-    const table = this.getTable()
-    this.previousLinesToRemove = splitTerminalLines(table).length
-
-    // Write
+    // Write streams
     streams.forEach(stream => {
       if(this.currentColumn === 0) { // ALL
         process.stdout.write(this.generator.getLine(stream.text, stream.index))
@@ -112,6 +114,15 @@ export class Terminal {
         process.stdout.write(this.generator.getLine(stream.text))
       }
     })
+
+    // Write external streams
+    externalStreams.forEach(stream => {
+      process.stdout.write(this.generator.getLine(stream.text))
+    })
+
+    // Generate table
+    const table = this.getTable()
+    this.previousLinesToRemove = splitTerminalLines(table).length
     process.stdout.write(table + "\n")
 
     // Set changes state
@@ -126,7 +137,7 @@ export class Terminal {
     this.hasChanges = false
 
     // Filter unseen streams
-    const unseen: Stream[] = []
+    const unseen: IndexStream[] = []
     this.unseen = this.unseen.reduce((streams, stream) => {
       if(this.currentColumn === 0 || stream.index + 1 === this.currentColumn) {
         unseen.push(stream)
@@ -134,7 +145,7 @@ export class Terminal {
         streams.push(stream)
       }
       return streams
-    }, [] as Stream[])
+    }, [] as IndexStream[])
 
     // Get unseen outputs
     this.update(unseen)

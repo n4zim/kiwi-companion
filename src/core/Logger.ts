@@ -1,17 +1,28 @@
 import chalk from "chalk"
+import { SpawnCallback } from "./execute"
 
 export class Logger {
 
-  static info(message: string) {
-    process.stdout.write(chalk.blue(`[INFO] ${message}`) + "\n")
+  private static log(message: string, wrapper?: SpawnCallback, error = false) {
+    if(typeof wrapper !== "undefined") {
+      wrapper(message, error)
+    } else if(error) {
+      process.stderr.write(message + "\n")
+    } else {
+      process.stdout.write(message + "\n")
+    }
   }
 
-  static success(message: string) {
-    process.stdout.write(chalk.green(`[OK] ${message}`) + "\n")
+  static info(message: string, wrapper?: SpawnCallback) {
+    this.log(chalk.blue(`[INFO] ${message}`), wrapper)
   }
 
-  static exit(message: string) {
-    process.stderr.write(chalk.red(`[ERROR] ${message}`) + "\n")
+  static success(message: string, wrapper?: SpawnCallback) {
+    this.log(chalk.green(`[OK] ${message}`), wrapper)
+  }
+
+  static exit(message: string, wrapper?: SpawnCallback) {
+    this.log(chalk.red(`[ERROR] ${message}`), wrapper, true)
     process.exit(1)
   }
 

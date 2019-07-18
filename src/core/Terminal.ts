@@ -17,17 +17,18 @@ interface IndexStream extends Stream {
 export class Terminal {
   private columns: string[]
   private generator: TerminalLinesGenerator
-  private barCharsCount: number = 0
-  private unseen: IndexStream[] = []
+  private barCharsCount = 0
   private currentColumn = 0
   private previousLinesToRemove = 0
   private hasChanges = false
+  private unseen: IndexStream[] = []
   private callbacks: (() => void)[] = []
   private finished = 0
 
   constructor(titles: string[]) {
     this.columns = [ "ALL", ...titles ]
     this.generator = new TerminalLinesGenerator(titles)
+    this.barCharsCount = this.columns.join("   ").length + 4
 
     // Inputs
     this.setRawMode(true)
@@ -42,15 +43,18 @@ export class Terminal {
 
   addStream(text: string | null, error = false, index?: number, callback?: () => void) {
     if(text === null) {
+      this.currentColumn = 0
       if(typeof callback !== "undefined") {
         callback()
       }
       if(++this.finished === this.columns.length - 1) {
         process.stdin.pause()
-        readline.clearScreenDown(process.stdout)
-        this.callbacks.forEach(finishCallback => {
-          finishCallback()
-        })
+        if(this.callbacks.length !== 0) {
+          this.callbacks.forEach(finishCallback => {
+            finishCallback()
+          })
+          this.clearTable()
+        }
       }
     } else if(typeof index === "undefined") {
       this.update([], [ { text, error } ])
@@ -94,6 +98,13 @@ export class Terminal {
     }).toString()
   }
 
+  private clearTable() {
+    if(this.previousLinesToRemove !== 0) {
+      readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
+      readline.clearScreenDown(process.stdout)
+    }
+  }
+
   private update(streams: IndexStream[] = [], externalStreams: Stream[] = []) {
     // No enough columns
     if(typeof process.stdout.columns !== "undefined" && this.barCharsCount > process.stdout.columns) {
@@ -101,10 +112,7 @@ export class Terminal {
     }
 
     // Remove table if needed
-    if(this.previousLinesToRemove !== 0) {
-      readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
-      readline.clearScreenDown(process.stdout)
-    }
+    this.clearTable()
 
     // Write streams
     streams.forEach(stream => {

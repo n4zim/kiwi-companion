@@ -14,10 +14,8 @@ export class CommandsGit {
 
   static clone(repository: Repository, path: string, callback: SpawnCallback) {
     execute([
-      /*"git", "clone", "--progress",
-      `git@${repository.host}:${repository.owner}/${repository.name}.git`,*/
-      "ls",
-      "-la",
+      "git", "clone", "--progress",
+      `git@${repository.host}:${repository.owner}/${repository.name}.git`,
       path,
     ], callback)
   }

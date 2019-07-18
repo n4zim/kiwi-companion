@@ -30,7 +30,7 @@ export function execute(commands: string[] = [], callback?: SpawnCallback): Chil
     }
 
     // Exit callback
-    command.on("exit", () => {
+    command.on("close", () => {
       callback(null, false)
     })
   }

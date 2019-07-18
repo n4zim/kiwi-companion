@@ -3,15 +3,15 @@ import chalk from "chalk"
 export class Logger {
 
   static info(message: string) {
-    console.log(chalk.blue(`[INFO] ${message}`))
+    process.stdout.write(chalk.blue(`[INFO] ${message}`) + "\n")
   }
 
   static success(message: string) {
-    console.log(chalk.green(`[OK] ${message}`))
+    process.stdout.write(chalk.green(`[OK] ${message}`) + "\n")
   }
 
   static exit(message: string) {
-    console.error(chalk.red(`[ERROR] ${message}`))
+    process.stderr.write(chalk.red(`[ERROR] ${message}`) + "\n")
     process.exit(1)
   }
 

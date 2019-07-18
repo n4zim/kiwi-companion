@@ -17,18 +17,7 @@ wrapper<Args>(this, {
   handler: (args, path) => {
     CommandsGit.checkIfAvailable()
 
-    const projects = [ "recipes-ts", "api", "ui", "kiwi", "cli", "kiwi-cli" ]
-
-    const terminal = new Terminal(projects)
-
-    let counts = [ 0, 0, 0, 0, 0, 0 ]
-    setInterval(() => {
-      projects.forEach((project, index) => {
-        terminal.addStream(index, ""+counts[index]++)
-      })
-    }, 2000)
-
-    /*Workspaces.getOne({ f: `{"slug":"=${args.workspace}"}` }).then(workspace => {
+    Workspaces.getOne({ f: `{"slug":"=${args.workspace}"}` }).then(workspace => {
 
       Logger.info(`Creating "${workspace.data.name}" directory...`)
       const workspaceDir = join(path, workspace.data.name)
@@ -45,7 +34,9 @@ wrapper<Args>(this, {
 
         workspace.data.repositories.forEach((repository, index) => {
           CommandsGit.clone(repository, join(workspaceDir, titles[index]), (output, error) => {
-            terminal.addStream(index, output, error)
+            terminal.addStream(index, output, error, () => {
+              Logger.success(`Repository ${repository.name} cloned`)
+            })
           })
         })
       })
@@ -54,7 +45,7 @@ wrapper<Args>(this, {
       if(typeof output.error !== "undefined") {
         Logger.exit(output.error.message)
       }
-    })*/
+    })
 
   },
 })

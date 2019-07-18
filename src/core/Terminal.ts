@@ -27,10 +27,7 @@ export class Terminal {
     this.generator = new TerminalLinesGenerator(titles)
 
     // Inputs
-    if(typeof process.stdin.setRawMode !== "undefined") {
-      process.stdin.setRawMode(true)
-    }
-    process.stdin.resume()
+    this.setRawMode(true)
     process.stdin.on("data", this.handleInput.bind(this))
 
     // Clear
@@ -40,20 +37,22 @@ export class Terminal {
     this.update()
   }
 
-  addStream(index: number, text: string | null, error = false) {
+  addStream(index: number, text: string | null, error = false, callback?: () => void) {
     if(text === null) {
+      if(typeof callback !== "undefined") {
+        callback()
+      }
       if(++this.finished === this.columns.length - 1) {
-        this.callbacks.forEach(callback => {
-          callback()
+        process.stdin.pause()
+        this.callbacks.forEach(finishCallback => {
+          finishCallback()
         })
       }
     } else {
       const stream: Stream = { index, text, error }
-
-      // ALL or current filter
-      if(this.currentColumn === 0 || this.currentColumn === index + 1) {
+      if(this.currentColumn === 0 || this.currentColumn === index + 1) { // ALL or current filter
         this.update([ stream ])
-      } else {
+      } else { // Other filters
         this.unseen.push(stream)
         this.update()
       }
@@ -98,10 +97,14 @@ export class Terminal {
     // Remove table if needed
     if(this.previousLinesToRemove !== 0) {
       readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
-      readline.clearLine(process.stdout, 1)
+      readline.clearScreenDown(process.stdout)
     }
 
-    // Add current lines
+    // Generate table
+    const table = this.getTable()
+    this.previousLinesToRemove = splitTerminalLines(table).length
+
+    // Write
     streams.forEach(stream => {
       if(this.currentColumn === 0) { // ALL
         process.stdout.write(this.generator.getLine(stream.text, stream.index))
@@ -109,11 +112,7 @@ export class Terminal {
         process.stdout.write(this.generator.getLine(stream.text))
       }
     })
-
-    // Generate table
-    const table = this.getTable()
     process.stdout.write(table + "\n")
-    this.previousLinesToRemove = splitTerminalLines(table).length
 
     // Set changes state
     if(!this.hasChanges) {
@@ -143,9 +142,7 @@ export class Terminal {
 
   private handleInput(chunk: any) {
     if(chunk[0] === 3 || chunk[0] === 17) {
-      if(typeof process.stdin.setRawMode !== "undefined") {
-        process.stdin.setRawMode(false)
-      }
+      this.setRawMode(false)
       process.exit()
     } else if(chunk[0] === 27 && chunk[1] === 91) {
       if(chunk[2] === 67) { // Right
@@ -159,6 +156,12 @@ export class Terminal {
           this.updateCurrentStream()
         }
       }
+    }
+  }
+
+  private setRawMode(mode: boolean) {
+    if(typeof process.stdin.setRawMode !== "undefined") {
+      process.stdin.setRawMode(mode)
     }
   }
 

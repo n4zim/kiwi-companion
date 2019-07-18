@@ -4,10 +4,10 @@ import { wrapper } from "../core/wrapper"
 import { CommandsGit } from "../core/CommandsGit"
 import { Logger } from "../core/Logger"
 import { Workspaces } from "../recipes/KiwiBundle-workspaces"
-import { TerminalStream } from "../core/TerminalStream"
+import { Terminal } from "../core/Terminal"
 
 interface Args {
-  slug: string
+  workspace: string
 }
 
 wrapper<Args>(this, {
@@ -17,23 +17,36 @@ wrapper<Args>(this, {
   handler: (args, path) => {
     CommandsGit.checkIfAvailable()
 
-    Workspaces.getOne({ f: `{"slug":"=${args.slug}"}` }).then(workspace => {
+    const projects = [ "recipes-ts", "api", "ui", "kiwi", "cli", "kiwi-cli" ]
+
+    const terminal = new Terminal(projects)
+
+    let counts = [ 0, 0, 0, 0, 0, 0 ]
+    setInterval(() => {
+      projects.forEach((project, index) => {
+        terminal.addStream(index, ""+counts[index]++)
+      })
+    }, 2000)
+
+    /*Workspaces.getOne({ f: `{"slug":"=${args.workspace}"}` }).then(workspace => {
 
       Logger.info(`Creating "${workspace.data.name}" directory...`)
       const workspaceDir = join(path, workspace.data.name)
       mkdir(workspaceDir, error => {
         if(error) Logger.exit(error.message)
 
-        const terminal = new TerminalStream()
+        const titles = workspace.data.repositories.map(repository => repository.slug || repository.name)
+
+        const terminal = new Terminal(titles)
 
         terminal.addCallback(() => {
           Logger.success(`Workspace ${workspace.data.name} imported`)
         })
 
         workspace.data.repositories.forEach((repository, index) => {
-          const name = repository.slug || repository.name
-          terminal.addChannel(name)
-          CommandsGit.clone(repository, join(workspaceDir, name), terminal.getChannel(index))
+          CommandsGit.clone(repository, join(workspaceDir, titles[index]), (output, error) => {
+            terminal.addStream(index, output, error)
+          })
         })
       })
 
@@ -41,7 +54,7 @@ wrapper<Args>(this, {
       if(typeof output.error !== "undefined") {
         Logger.exit(output.error.message)
       }
-    })
+    })*/
 
   },
 })

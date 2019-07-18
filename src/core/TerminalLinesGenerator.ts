@@ -16,21 +16,26 @@ const COLORS = [
 	chalk.white,
 ]
 
-export class TerminalMulti {
+export const splitTerminalLines = (text: string) => text.split(/\r\n|\r|\n/)
+
+export class TerminalLinesGenerator {
+  private maxTitleLength: number
   private titles: string[] = []
-  private maxTitleLength = 0
 
   constructor(titles: string[] = []) {
+    // Max length
+    this.maxTitleLength = titles.reduce((max, title) => {
+      if(title.length > max) return title.length
+      return max
+    }, 0)
+
+    // Titles
     titles.forEach(title => {
       this.addTitle(title)
     })
   }
 
-  addTitle(title: string) {
-    if(title.length > this.maxTitleLength) {
-      this.maxTitleLength = title.length
-    }
-
+  private addTitle(title: string) {
     let whiteSpaces = ""
     if(title.length < this.maxTitleLength) {
       whiteSpaces += " ".repeat(this.maxTitleLength - title.length)
@@ -43,7 +48,9 @@ export class TerminalMulti {
 
   getLine(text: string, index?: number) {
     if(typeof index === "undefined") return chalk(text) + "\n"
-    return this.titles[index] + chalk(text) + "\n"
+    return splitTerminalLines(text).map(line => {
+      return this.titles[index] + chalk(line) + "\n"
+    }).join("")
   }
 
 }

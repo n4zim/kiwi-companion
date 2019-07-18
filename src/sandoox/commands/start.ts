@@ -1,5 +1,5 @@
 import { wrapper } from "../../core/wrapper"
-import { TerminalFilters } from "../../core/TerminalFilters";
+import { Terminal } from "../../core/Terminal";
 
 wrapper(this, {
   command: "start",
@@ -8,12 +8,12 @@ wrapper(this, {
 
     const projects = [ "recipes-ts", "api", "ui", "kiwi", "cli", "kiwi-cli" ]
 
-    const terminal = new TerminalFilters(projects)
+    const terminal = new Terminal(projects)
 
     let counts = [ 0, 0, 0, 0, 0, 0 ]
     setInterval(() => {
       projects.forEach((project, index) => {
-        terminal.addToStream(index, ""+counts[index]++)
+        terminal.addStream(index, ""+counts[index]++)
       })
     }, 2000)
 

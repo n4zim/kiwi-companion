@@ -1,7 +1,7 @@
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
 import { Logger } from "./Logger"
 
-export type SpawnCallback = (error: boolean, data: string|null) => void
+export type SpawnCallback = (output: string|null, error: boolean) => void
 
 export function execute(commands: string[] = [], callback?: SpawnCallback): ChildProcess {
   if(commands.length === 0) Logger.exit("Execute command is empty")
@@ -18,20 +18,20 @@ export function execute(commands: string[] = [], callback?: SpawnCallback): Chil
     // Out
     if(command.stdout !== null) {
       command.stdout.on("data", (data: any) => {
-        callback(false, data.toString())
+        callback(data.toString(), false)
       })
     }
 
     // Errors
     if(command.stderr !== null) {
       command.stderr.on("data", (data: any) => {
-        callback(true, data.toString())
+        callback(data.toString(), true)
       })
     }
 
     // Exit callback
     command.on("exit", () => {
-      callback(false, null)
+      callback(null, false)
     })
   }
 

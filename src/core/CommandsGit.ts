@@ -1,8 +1,7 @@
 import commandExists from "command-exists"
 import { Logger } from "./Logger"
 import { Repository } from "../recipes/KiwiBundle-workspaces"
-import { SpawnCallback } from "./execute"
-import { execute } from "./execute"
+import { SpawnCallback, execute } from "./execute"
 
 export class CommandsGit {
   private static isGitInstalled = commandExists.sync("git")
@@ -13,11 +12,9 @@ export class CommandsGit {
     }
   }
 
-  static clone(repository: Repository, path: string, callback?: SpawnCallback) {
+  static clone(repository: Repository, path: string, callback: SpawnCallback) {
     execute([
-      "git",
-      "clone",
-      "--progress",
+      "git", "clone", "--progress",
       `git@${repository.host}:${repository.owner}/${repository.name}.git`,
       path,
     ], callback)

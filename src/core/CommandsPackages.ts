@@ -67,7 +67,6 @@ export class CommandsPackages {
     const command: string[] = []
 
     switch(this.detectBinary(path)) {
-
       case PackagesBinary.NPM:
         command.push("npm install")
         if(isDev) {
@@ -78,7 +77,6 @@ export class CommandsPackages {
           command.push("--save-prod")
         }
         break
-
       case PackagesBinary.YARN:
         command.push("yarn add")
         if(isDev) {
@@ -87,7 +85,6 @@ export class CommandsPackages {
           command.push("--optional")
         }
         break
-
     }
 
     this.execute([ ...command, ...packages ])
@@ -95,15 +92,12 @@ export class CommandsPackages {
 
   static remove(path: string, packages: string[]) {
     switch(this.detectBinary(path)) {
-
       case PackagesBinary.NPM:
         this.execute([ "yarn remove", ...packages ])
         break
-
       case PackagesBinary.YARN:
         this.execute([ "npm remove --save", ...packages ])
         break
-
     }
   }
 

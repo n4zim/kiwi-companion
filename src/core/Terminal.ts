@@ -18,17 +18,20 @@ export class Terminal {
   private columns: string[]
   private generator: TerminalLinesGenerator
   private barCharsCount = 0
+  private callback?: () => string
   private currentColumn = 0
   private previousLinesToRemove = 0
   private hasChanges = false
   private unseen: IndexStream[] = []
-  private callbacks: (() => void)[] = []
-  private finished = 0
+  private globalLines: Stream[] = []
+  private finished: number[] = []
+  private previousError: { [index: string]: boolean } = {}
 
-  constructor(titles: string[]) {
+  constructor(titles: string[], callback?: () => string) {
     this.columns = [ "ALL", ...titles ]
     this.generator = new TerminalLinesGenerator(titles)
     this.barCharsCount = this.columns.join("   ").length + 4
+    this.callback = callback
 
     // Inputs
     this.setRawMode(true)
@@ -43,23 +46,30 @@ export class Terminal {
 
   addStream(text: string | null, error = false, index?: number, callback?: () => void) {
     if(text === null) {
-      this.currentColumn = 0
+      // Add index to finished
+      if(typeof index !== "undefined") {
+        this.finished.push(index)
+      }
+
+      // Callback if present
       if(typeof callback !== "undefined") {
         callback()
       }
-      if(++this.finished === this.columns.length - 1) {
-        process.stdin.pause()
-        if(this.callbacks.length !== 0) {
-          this.callbacks.forEach(finishCallback => {
-            finishCallback()
-          })
-          this.clearTable()
+
+      // Final callback
+      if(Object.values(this.finished).length + 1 === this.columns.length) {
+        if(typeof this.callback !== "undefined") {
+          this.globalLines.push({ text: this.callback(), error: false })
         }
+        this.writeGlobalLines()
+        process.stdin.pause()
       }
     } else if(typeof index === "undefined") {
-      this.update([], [ { text, error } ])
+      this.globalLines.push({ text, error })
+      this.update()
     } else {
       const stream: IndexStream = { index, text, error }
+      this.previousError[index] = error
       if(this.currentColumn === 0 || this.currentColumn === index + 1) { // ALL or current filter
         this.update([ stream ])
       } else { // Other filters
@@ -69,27 +79,52 @@ export class Terminal {
     }
   }
 
-  addCallback(callback: () => void) {
-    this.callbacks.push(callback)
-  }
-
   private getTable() {
     return new Table({
       head: this.columns.map((column, columnIndex) => {
         // Current
         if(columnIndex === this.currentColumn) {
-          return chalk.bgBlue(chalk.white(column))
+          column = chalk.bold(column)
         }
 
         // Not ALL
         if(columnIndex !== 0) {
-          const unseen = this.unseen.filter(s => columnIndex === s.index + 1)
-          if(unseen.filter(s => s.error).length !== 0) { // Unseen errors
-            return chalk.red(column)
+          const index = columnIndex - 1
+
+
+
+        // Finished
+        if(this.finished.indexOf(index) !== -1) {
+          // Error
+          if(this.previousError[index]) {
+            return chalk.bgRed(chalk.white(column))
           }
-          if(unseen.length !== 0) { // Unseen new inputs
+          // No error
+          return chalk.bgGreen(chalk.white(column))
+        } else {
+          const unseen = this.unseen.filter(s => s.index === index)
+          if(unseen.length !== 0) {
+            // Has errors
+            if(unseen.filter(s => s.error).length !== 0) {
+              return chalk.red(column)
+            }
+            // No errors
             return chalk.green(column)
           }
+        }
+
+
+
+
+          /*// Finished
+          if(this.finished.indexOf(index) !== -1) {
+            return chalk.bgBlue(chalk.white(column))
+          }
+          // Unseen
+          const unseen = this.unseen.filter(s => s.index === index)
+          if(unseen.length !== 0) {
+            return chalk.blue(column)
+          }*/
         }
 
         // Default color
@@ -98,21 +133,23 @@ export class Terminal {
     }).toString()
   }
 
-  private clearTable() {
-    if(this.previousLinesToRemove !== 0) {
-      readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
-      readline.clearScreenDown(process.stdout)
-    }
+  private writeGlobalLines() {
+    this.globalLines.forEach(stream => {
+      process.stdout.write(this.generator.getLine(stream.text))
+    })
   }
 
-  private update(streams: IndexStream[] = [], externalStreams: Stream[] = []) {
+  private update(streams: IndexStream[] = [], writeGlobals = false) {
     // No enough columns
     if(typeof process.stdout.columns !== "undefined" && this.barCharsCount > process.stdout.columns) {
       Logger.exit(`Too small TTY, a minimum of ${this.barCharsCount} columns is needed`)
     }
 
     // Remove table if needed
-    this.clearTable()
+    if(this.previousLinesToRemove !== 0) {
+      readline.moveCursor(process.stdout, 0, -this.previousLinesToRemove)
+      readline.clearScreenDown(process.stdout)
+    }
 
     // Write streams
     streams.forEach(stream => {
@@ -123,10 +160,10 @@ export class Terminal {
       }
     })
 
-    // Write external streams
-    externalStreams.forEach(stream => {
-      process.stdout.write(this.generator.getLine(stream.text))
-    })
+    // Write global lines
+    if(writeGlobals) {
+      this.writeGlobalLines()
+    }
 
     // Generate table
     const table = this.getTable()
@@ -140,8 +177,13 @@ export class Terminal {
   }
 
   private updateCurrentStream() {
+    let writeGlobals = this.currentColumn === 0
+
     // Clean only if outputs has been made
-    if(this.hasChanges) this.previousLinesToRemove = 0
+    if(this.hasChanges) {
+      this.previousLinesToRemove = 0
+      // writeGlobals = true
+    }
     this.hasChanges = false
 
     // Filter unseen streams
@@ -156,7 +198,9 @@ export class Terminal {
     }, [] as IndexStream[])
 
     // Get unseen outputs
-    this.update(unseen)
+    this.update(unseen, writeGlobals)
+
+    // Reset
   }
 
   private handleInput(chunk: any) {

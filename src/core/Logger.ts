@@ -13,16 +13,28 @@ export class Logger {
     }
   }
 
+  static infoString(message: string) {
+    return chalk.blue(`[INFO] ${message}`)
+  }
+
+  static successString(message: string) {
+    return chalk.green(`[OK] ${message}`)
+  }
+
+  static exitString(message: string) {
+    return chalk.red(`[ERROR] ${message}`)
+  }
+
   static info(message: string, wrapper?: SpawnCallback) {
-    this.log(chalk.blue(`[INFO] ${message}`), wrapper)
+    this.log(this.infoString(message), wrapper)
   }
 
   static success(message: string, wrapper?: SpawnCallback) {
-    this.log(chalk.green(`[OK] ${message}`), wrapper)
+    this.log(this.successString(message), wrapper)
   }
 
   static exit(message: string, wrapper?: SpawnCallback) {
-    this.log(chalk.red(`[ERROR] ${message}`), wrapper, true)
+    this.log(this.exitString(message), wrapper, true)
     process.exit(1)
   }
 

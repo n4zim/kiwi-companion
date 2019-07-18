@@ -15,16 +15,22 @@ export function execute(commands: string[] = [], callback?: SpawnCallback): Chil
   const command = spawn(commands[0], commands.slice(1), options)
 
   if(typeof callback !== "undefined") {
-    // Out
+    // Standard output
     if(command.stdout !== null) {
       command.stdout.on("data", (data: any) => {
         callback(data.toString(), false)
       })
+      command.stdout.on("error", (data: any) => {
+        callback(data.toString(), true)
+      })
     }
 
-    // Errors
+    // Errors output
     if(command.stderr !== null) {
       command.stderr.on("data", (data: any) => {
+        callback(data.toString(), false)
+      })
+      command.stderr.on("error", (data: any) => {
         callback(data.toString(), true)
       })
     }

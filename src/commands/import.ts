@@ -5,6 +5,7 @@ import { CommandsGit } from "../core/CommandsGit"
 import { Logger } from "../core/Logger"
 import { Workspaces } from "../recipes/KiwiBundle-workspaces"
 import { Terminal } from "../core/Terminal"
+import { ConfigsV1 } from "../core/Configs.v1"
 
 interface Args {
   workspace: string
@@ -26,23 +27,29 @@ wrapper<Args>(this, {
 
         const titles = workspace.data.repositories.map(repository => repository.slug || repository.name)
 
-        const terminal = new Terminal(titles)
-
-        terminal.addCallback(() => {
-          Logger.success(`Workspace ${workspace.data.name} imported`, (loggerOutput, loggerError) => {
-            terminal.addStream(loggerOutput, loggerError)
-          })
+        const terminal = new Terminal(titles, () => {
+          return Logger.successString(`Workspace ${workspace.data.name} imported`)
         })
 
+        // Get config
+        const config = ConfigsV1.get()
+
+        // Commands
         workspace.data.repositories.forEach((repository, index) => {
-          CommandsGit.clone(repository, join(workspaceDir, titles[index]), (output, error) => {
+          const title = titles[index]
+          const dir = join(workspaceDir, title)
+          CommandsGit.clone(repository, dir, (output, error) => {
             terminal.addStream(output, error, index, () => {
+              config.paths[`${workspace.slug}:${title}`] = dir
               Logger.success(`Repository ${repository.name} cloned`, (loggerOutput, loggerError) => {
                 terminal.addStream(loggerOutput, loggerError)
               })
             })
           })
         })
+
+        // Update config
+        ConfigsV1.set(config)
       })
 
     }).catch(output => {

@@ -1,29 +1,38 @@
 import commandExists from "command-exists"
-import fs from "fs"
+import fs, { stat } from "fs"
 import { join } from "path"
 import { exec } from "child_process"
 import { Logger } from "./Logger"
+import { SpawnCallback, execute } from "./execute";
 
 export enum PackagesBinary {
   NPM = "npm",
   YARN = "yarn",
 }
 
+type PackageDependencies = { [name: string]: string }
+
+export interface PackagesJson {
+  name: string
+  version?: string
+  dependencies?: PackageDependencies
+  devDependencies?: PackageDependencies
+  optionalDependencies?: PackageDependencies
+}
+
 export class CommandsPackages {
   private static isYarnInstalled = commandExists.sync("yarn")
 
-  private static execute(command: string|string[]) {
-    if(Array.isArray(command)) command = command.join(" ")
-    exec(command, (error, stdout) => {
-      if(error !== null) {
-        Logger.exit(error.message)
-      }
-      console.log(stdout)
-    })
+  static detectPackageJson(path: string): boolean {
+    return fs.existsSync(join(path, "package.json"))
+  }
+
+  static get(path: string): PackagesJson {
+    return JSON.parse(fs.readFileSync(join(path, "package.json"), "utf-8"))
   }
 
   private static detectBinary(path: string): PackagesBinary {
-    if(!fs.existsSync(join(path, "package.json"))) {
+    if(!this.detectPackageJson(path)) {
       Logger.exit("No package.json found, you must init first")
     }
 
@@ -48,13 +57,13 @@ export class CommandsPackages {
     return PackagesBinary.NPM
   }
 
-  static install(path: string) {
+  static install(path: string, callback?: SpawnCallback) {
     switch(this.detectBinary(path)) {
       case PackagesBinary.NPM:
-        this.execute("npm install")
+        execute([ "npm", "install" ], callback, path)
         break
       case PackagesBinary.YARN:
-        this.execute("yarn")
+          execute([ "yarn" ], callback, path)
         break
     }
   }
@@ -68,7 +77,7 @@ export class CommandsPackages {
 
     switch(this.detectBinary(path)) {
       case PackagesBinary.NPM:
-        command.push("npm install")
+        command.push("npm", "install")
         if(isDev) {
           command.push("--save-dev")
         } else if(isOptional) {
@@ -78,7 +87,7 @@ export class CommandsPackages {
         }
         break
       case PackagesBinary.YARN:
-        command.push("yarn add")
+        command.push("yarn", "add")
         if(isDev) {
           command.push("--dev")
         } else if(isOptional) {
@@ -87,16 +96,38 @@ export class CommandsPackages {
         break
     }
 
-    this.execute([ ...command, ...packages ])
+    execute([ ...command, ...packages ])
   }
 
   static remove(path: string, packages: string[]) {
     switch(this.detectBinary(path)) {
       case PackagesBinary.NPM:
-        this.execute([ "yarn remove", ...packages ])
+        execute([ "npm", "remove", "--save", ...packages ])
         break
       case PackagesBinary.YARN:
-        this.execute([ "npm remove --save", ...packages ])
+        execute([ "yarn", "remove", ...packages ])
+        break
+    }
+  }
+
+  static linkCreate(path: string, callback?: SpawnCallback) {
+    switch(this.detectBinary(path)) {
+      case PackagesBinary.NPM:
+        execute([ "npm", "link", "--force" ], callback, path)
+        break
+      case PackagesBinary.YARN:
+        execute([ "yarn", "link", "--overwrite", "--force" ], callback, path)
+        break
+    }
+  }
+
+  static linkPackage(path: string, packageName: string, callback?: SpawnCallback) {
+    switch(this.detectBinary(path)) {
+      case PackagesBinary.NPM:
+        execute([ "npm", "link", packageName ], callback, path)
+        break
+      case PackagesBinary.YARN:
+        execute([ "yarn", "link", packageName ], callback, path)
         break
     }
   }

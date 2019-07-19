@@ -5,7 +5,8 @@ import { packageJson } from ".."
 
 interface ConfigV1 {
   version: string
-  paths: { [name: string]: string }
+  projects: { [name: string]: string }
+  workspaces: { [name: string]: string[] }
 }
 
 export class ConfigsV1 {
@@ -24,7 +25,8 @@ export class ConfigsV1 {
 
     return {
       version: packageJson.version,
-      paths: {},
+      projects: {},
+      workspaces: {},
     }
   }
 

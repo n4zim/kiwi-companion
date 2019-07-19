@@ -14,6 +14,8 @@ interface IndexStream extends Stream {
   index: number
 }
 
+// TODO : Better error handling
+
 export class Terminal {
   private columns: string[]
   private generator: TerminalLinesGenerator
@@ -26,6 +28,7 @@ export class Terminal {
   private globalLines: Stream[] = []
   private finished: number[] = []
   private previousError: { [index: string]: boolean } = {}
+  private manualClose = false
 
   constructor(titles: string[], callback?: () => string) {
     this.columns = [ "ALL", ...titles ]
@@ -50,19 +53,13 @@ export class Terminal {
       if(typeof index !== "undefined") {
         this.finished.push(index)
       }
-
       // Callback if present
       if(typeof callback !== "undefined") {
         callback()
       }
-
-      // Final callback
-      if(Object.values(this.finished).length + 1 === this.columns.length) {
-        if(typeof this.callback !== "undefined") {
-          this.globalLines.push({ text: this.callback(), error: false })
-        }
-        this.writeGlobalLines()
-        process.stdin.pause()
+      // Close if all columns are done
+      if(!this.manualClose && Object.values(this.finished).length + 1 === this.columns.length) {
+        this.close()
       }
     } else if(typeof index === "undefined") {
       this.globalLines.push({ text, error })
@@ -79,6 +76,14 @@ export class Terminal {
     }
   }
 
+  close() {
+    if(typeof this.callback !== "undefined") {
+      this.globalLines.push({ text: this.callback(), error: false })
+    }
+    this.writeGlobalLines()
+    process.stdin.pause()
+  }
+
   private getTable() {
     return new Table({
       head: this.columns.map((column, columnIndex) => {
@@ -91,40 +96,25 @@ export class Terminal {
         if(columnIndex !== 0) {
           const index = columnIndex - 1
 
-
-
-        // Finished
-        if(this.finished.indexOf(index) !== -1) {
-          // Error
-          if(this.previousError[index]) {
-            return chalk.bgRed(chalk.white(column))
-          }
-          // No error
-          return chalk.bgGreen(chalk.white(column))
-        } else {
-          const unseen = this.unseen.filter(s => s.index === index)
-          if(unseen.length !== 0) {
-            // Has errors
-            if(unseen.filter(s => s.error).length !== 0) {
-              return chalk.red(column)
-            }
-            // No errors
-            return chalk.green(column)
-          }
-        }
-
-
-
-
-          /*// Finished
+          // Finished
           if(this.finished.indexOf(index) !== -1) {
-            return chalk.bgBlue(chalk.white(column))
+            // Error
+            if(this.previousError[index]) {
+              return chalk.bgRed(chalk.white(column))
+            }
+            // No error
+            return chalk.bgGreen(chalk.white(column))
+          } else {
+            const unseen = this.unseen.filter(s => s.index === index)
+            if(unseen.length !== 0) {
+              // Has errors
+              if(unseen.filter(s => s.error).length !== 0) {
+                return chalk.red(column)
+              }
+              // No errors
+              return chalk.green(column)
+            }
           }
-          // Unseen
-          const unseen = this.unseen.filter(s => s.index === index)
-          if(unseen.length !== 0) {
-            return chalk.blue(column)
-          }*/
         }
 
         // Default color
@@ -177,7 +167,7 @@ export class Terminal {
   }
 
   private updateCurrentStream() {
-    let writeGlobals = this.currentColumn === 0
+    let writeGlobals = false// this.currentColumn === 0
 
     // Clean only if outputs has been made
     if(this.hasChanges) {
@@ -226,6 +216,10 @@ export class Terminal {
     if(typeof process.stdin.setRawMode !== "undefined") {
       process.stdin.setRawMode(mode)
     }
+  }
+
+  enableManualClose() {
+    this.manualClose = true
   }
 
 }

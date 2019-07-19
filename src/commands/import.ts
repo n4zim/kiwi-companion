@@ -25,14 +25,17 @@ wrapper<Args>(this, {
       mkdir(workspaceDir, error => {
         if(error) Logger.exit(error.message)
 
-        const titles = workspace.data.repositories.map(repository => repository.slug || repository.name)
-
-        const terminal = new Terminal(titles, () => {
-          return Logger.successString(`Workspace ${workspace.data.name} imported`)
-        })
-
         // Get config
         const config = ConfigsV1.get()
+
+        const titles = workspace.data.repositories.map(repository => repository.slug || repository.name)
+        const terminal = new Terminal(titles, () => {
+          // Update config
+          ConfigsV1.set(config)
+
+          // Final output
+          return Logger.successString(`Workspace ${workspace.data.name} imported`)
+        })
 
         // Commands
         workspace.data.repositories.forEach((repository, index) => {
@@ -40,16 +43,18 @@ wrapper<Args>(this, {
           const dir = join(workspaceDir, title)
           CommandsGit.clone(repository, dir, (output, error) => {
             terminal.addStream(output, error, index, () => {
-              config.paths[`${workspace.slug}:${title}`] = dir
+              config.projects[`${workspace.data.slug}:${title}`] = dir
+              if(typeof config.workspaces[workspace.data.slug] === "undefined") {
+                config.workspaces[workspace.data.slug] = [ title ]
+              } else if(config.workspaces[workspace.data.slug].indexOf(title) === -1) {
+                config.workspaces[workspace.data.slug].push(title)
+              }
               Logger.success(`Repository ${repository.name} cloned`, (loggerOutput, loggerError) => {
                 terminal.addStream(loggerOutput, loggerError)
               })
             })
           })
         })
-
-        // Update config
-        ConfigsV1.set(config)
       })
 
     }).catch(output => {

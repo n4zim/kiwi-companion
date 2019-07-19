@@ -23,11 +23,13 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
+    "@types/js-yaml": "^3.12.1",
     "blessed": "^0.1.81",
     "chalk": "^2.4.2",
     "cli-table": "^0.3.1",
     "command-exists": "^1.2.8",
     "dropin-recipes": "^1.1.2",
+    "js-yaml": "^3.13.1",
     "path": "^0.12.7",
     "stmux": "^1.7.1",
     "yargs": "^13.2.4"

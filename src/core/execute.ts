@@ -3,13 +3,19 @@ import { Logger } from "./Logger"
 
 export type SpawnCallback = (output: string|null, error: boolean) => void
 
-export function execute(commands: string[] = [], callback?: SpawnCallback): ChildProcess {
+// TODO : Format errors for commands
+
+export function execute(commands: string[] = [], callback?: SpawnCallback, dir?: string): ChildProcess {
   if(commands.length === 0) Logger.exit("Execute command is empty")
 
   let options: SpawnOptions = {}
 
   if(typeof callback === "undefined") {
     options.stdio = [ process.stdin, process.stdout, process.stderr ]
+  }
+
+  if(typeof dir !== "undefined") {
+    options.cwd = dir
   }
 
   const command = spawn(commands[0], commands.slice(1), options)

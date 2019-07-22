@@ -21,6 +21,8 @@ wrapper<Args>(this, {
 
     const pathsList = Object.values(paths)
     if(pathsList.length !== 0) {
+      Logger.info(`Starting projects : ${projects.join(", ")}`)
+
       const terminal = new Terminal(projects)
 
       pathsList.forEach((path, index) => {

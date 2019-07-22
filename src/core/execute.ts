@@ -1,9 +1,12 @@
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
 import { Logger } from "./Logger"
+import { appendFileSync } from "fs";
 
 export type SpawnCallback = (output: string|null, error: boolean) => void
 
 // TODO : Format errors for commands
+
+const dataToString = (data: string) => data.toString().replace(/\033c/g, "")
 
 export function execute(commands: string[] = [], callback?: SpawnCallback, dir?: string): ChildProcess {
   if(commands.length === 0) Logger.exit("Execute command is empty")
@@ -29,21 +32,22 @@ export function execute(commands: string[] = [], callback?: SpawnCallback, dir?:
   if(typeof callback !== "undefined") {
     // Standard output
     if(command.stdout !== null) {
-      command.stdout.on("data", (data: any) => {
-        callback(data.toString(), false)
+      command.stdout.on("data", (data: string) => {
+        // appendFileSync("/tmp/out.txt", data.toString())
+        callback(dataToString(data), false)
       })
-      command.stdout.on("error", (data: any) => {
-        callback(data.toString(), true)
+      command.stdout.on("error", (data: string) => {
+        callback(dataToString(data), true)
       })
     }
 
     // Errors output
     if(command.stderr !== null) {
-      command.stderr.on("data", (data: any) => {
-        callback(data.toString(), false)
+      command.stderr.on("data", (data: string) => {
+        callback(dataToString(data), false)
       })
-      command.stderr.on("error", (data: any) => {
-        callback(data.toString(), true)
+      command.stderr.on("error", (data: string) => {
+        callback(dataToString(data), true)
       })
     }
 

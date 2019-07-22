@@ -28,10 +28,13 @@ wrapper<Args>(this, {
         // Get config
         const config = ConfigsV1.get()
 
-        const titles = workspace.data.repositories.map(repository => repository.slug || repository.name)
+        const titles = workspace.data.repositories.map(repository => repository.slug)
         const terminal = new Terminal(titles, () => {
           // Update config
           ConfigsV1.set(config)
+
+          // Adding VSCode workspaces
+          ConfigsV1.addVSCodeWorkspace(workspace.data.name, config)
 
           // Final output
           return Logger.successString(`Workspace ${workspace.data.name} imported`)
@@ -43,7 +46,10 @@ wrapper<Args>(this, {
           const dir = join(workspaceDir, title)
           CommandsGit.clone(repository, dir, (output, error) => {
             terminal.addStream(output, error, index, () => {
-              config.projects[`${workspace.data.slug}:${title}`] = dir
+              config.projects[`${workspace.data.slug}:${title}`] = {
+                name: repository.displayName,
+                path: dir,
+              }
               if(typeof config.workspaces[workspace.data.slug] === "undefined") {
                 config.workspaces[workspace.data.slug] = [ title ]
               } else if(config.workspaces[workspace.data.slug].indexOf(title) === -1) {

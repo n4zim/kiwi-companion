@@ -113,23 +113,74 @@ export class CommandsPackages {
   static linkCreate(path: string, callback?: SpawnCallback) {
     switch(this.detectBinary(path)) {
       case PackagesBinary.NPM:
-        execute([ "npm", "link", "--force" ], callback, path)
+        execute([ "npm", "link" ], callback, path)
         break
       case PackagesBinary.YARN:
-        execute([ "yarn", "link", "--overwrite", "--force" ], callback, path)
+        execute([ "yarn", "link" ], callback, path)
         break
     }
   }
 
-  static linkPackage(path: string, packageName: string, callback?: SpawnCallback) {
+  static unlink(path: string, callback?: SpawnCallback) {
     switch(this.detectBinary(path)) {
       case PackagesBinary.NPM:
-        execute([ "npm", "link", packageName ], callback, path)
+        execute([ "npm", "unlink" ], callback, path)
         break
       case PackagesBinary.YARN:
-        execute([ "yarn", "link", packageName ], callback, path)
+        execute([ "yarn", "unlink" ], callback, path)
         break
     }
+  }
+
+  static linkPackage(path: string, packages: string[], callback?: SpawnCallback) {
+    switch(this.detectBinary(path)) {
+      case PackagesBinary.NPM:
+        execute([ "npm", "link", ...packages ], callback, path)
+        break
+      case PackagesBinary.YARN:
+        execute([ "yarn", "link", ...packages ], callback, path)
+        break
+    }
+  }
+
+  static getPathsFromString(text: string, config: ConfigV1) {
+    const split = text.split(":")
+    if(split.length > 2) {
+      Logger.exit("Wrong selector format")
+    }
+
+    const paths: { [project: string]: string } = {}
+
+    if(split.length === 1) { // Workspace
+      const projects = config.workspaces[split[0]]
+      if(typeof projects === "undefined") {
+        Logger.exit(`Unknown workspace "${split[0]}"`)
+      }
+      projects.forEach(projectName => {
+        const projectSlug = `${split[0]}:${projectName}`
+        const project = config.projects[projectSlug]
+        if(typeof project === "undefined") {
+          Logger.exit(`Unknown project "${project}"`)
+        }
+        if(CommandsPackages.detectPackageJson(project.path)) {
+          paths[projectName] = project.path
+        } else {
+          Logger.info(`Skipping "${projectName}"`)
+        }
+      })
+    } else { // Project
+      const project = config.projects[text]
+      if(typeof project === "undefined") {
+        Logger.exit(`Unknown project "${text}"`)
+      }
+      if(CommandsPackages.detectPackageJson(project.path)) {
+        paths[text] = project.path
+      } else {
+        Logger.exit(`Skipping "${text}"`)
+      }
+    }
+
+    return paths
   }
 
 }

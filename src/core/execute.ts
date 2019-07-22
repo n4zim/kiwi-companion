@@ -10,6 +10,12 @@ export function execute(commands: string[] = [], callback?: SpawnCallback, dir?:
 
   let options: SpawnOptions = {}
 
+  if(commands[0] === "git") {
+    options.env = {
+      GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no",
+    }
+  }
+
   if(typeof callback === "undefined") {
     options.stdio = [ process.stdin, process.stdout, process.stderr ]
   }

@@ -11,18 +11,19 @@ import * as Recipes from "dropin-recipes"
   Use it instead to update its content, the file will be overwritten
 */
 
-export interface Repository {
+export interface WorkspaceRepository {
+  slug: string
+  displayName: string
   host: string
   owner: string
   name: string
-  slug?: string
 }
 
 export interface Workspace {
   name: string
   slug: string
   version: number
-  repositories: Repository[]
+  repositories: WorkspaceRepository[]
 }
 
 export const Workspaces = Recipes.RequestsHandler<Workspace>("KiwiBundle", "workspaces")

@@ -1,6 +1,5 @@
 import { spawn, ChildProcess, SpawnOptions } from "child_process"
 import { Logger } from "./Logger"
-import { appendFileSync } from "fs";
 
 export type SpawnCallback = (output: string|null, error: boolean) => void
 
@@ -11,7 +10,9 @@ const dataToString = (data: string) => data.toString().replace(/\033c/g, "")
 export function execute(commands: string[] = [], callback?: SpawnCallback, dir?: string): ChildProcess {
   if(commands.length === 0) Logger.exit("Execute command is empty")
 
-  let options: SpawnOptions = {}
+  let options: SpawnOptions = {
+    detached: true,
+  }
 
   if(commands[0] === "git") {
     options.env = {
@@ -28,6 +29,10 @@ export function execute(commands: string[] = [], callback?: SpawnCallback, dir?:
   }
 
   const command = spawn(commands[0], commands.slice(1), options)
+
+  process.on("exit", () => {
+    command.kill("SIGINT")
+  })
 
   if(typeof callback !== "undefined") {
     // Standard output

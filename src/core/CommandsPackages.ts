@@ -1,9 +1,9 @@
 import commandExists from "command-exists"
-import fs, { stat } from "fs"
+import fs from "fs"
 import { join } from "path"
-import { exec } from "child_process"
 import { Logger } from "./Logger"
-import { SpawnCallback, execute } from "./execute";
+import { SpawnCallback, execute } from "./execute"
+import { ConfigV1 } from "./Configs.v1"
 
 export enum PackagesBinary {
   NPM = "npm",
@@ -64,6 +64,17 @@ export class CommandsPackages {
         break
       case PackagesBinary.YARN:
           execute([ "yarn" ], callback, path)
+        break
+    }
+  }
+
+  static start(path: string, callback?: SpawnCallback) {
+    switch(this.detectBinary(path)) {
+      case PackagesBinary.NPM:
+        execute([ "npm", "start" ], callback, path)
+        break
+      case PackagesBinary.YARN:
+          execute([ "yarn", "start" ], callback, path)
         break
     }
   }

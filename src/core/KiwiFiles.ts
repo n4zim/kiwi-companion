@@ -4,6 +4,7 @@ import jsYaml from "js-yaml"
 
 interface KiwiFilesScripts {
   install?: string
+  start?: string
 }
 
 interface KiwiFile {

@@ -21,3 +21,7 @@ func ConfigsGetRootPath() string {
 func ConfigsGetKubernetesPath() string {
 	return path.Join(ConfigsGetRootPath(), values.KubernetesNameDir)
 }
+
+func ConfigsGetKubeconfigPath() string {
+	return path.Join(ConfigsGetKubernetesPath(), "kubeconfig.yml")
+}

@@ -3,12 +3,10 @@ package commands
 import (
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/theblueforest/kiwi-companion/helpers"
-	"github.com/theblueforest/kiwi-companion/values"
 )
 
 var configFile string
@@ -27,17 +25,16 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCommand.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.kiwi-companion.yaml)")
+	rootCommand.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is ~/.kiwi-companion/.config.yaml)")
 	rootCommand.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func initConfig() {
 	root := helpers.ConfigsGetRootPath()
 
-	// Directories
+	// Directory
 	if _, err := os.Stat(root); os.IsNotExist(err) {
 		os.Mkdir(root, 0750)
-		os.Mkdir(path.Join(root, values.KubernetesNameDir), 0750)
 	}
 
 	// Configs

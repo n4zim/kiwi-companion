@@ -59,7 +59,7 @@ func pullServerImage(cli *client.Client) {
 	fmt.Printf(" %s\n\n", "[OK]")
 }
 
-func createServerContainer(cli *client.Client) string {
+func createServer(cli *client.Client) string {
 	fmt.Printf("%s", "Creating server container...")
 
 	config := container.Config{
@@ -134,7 +134,7 @@ func StartKubernetesServer(cli *client.Client) {
 
 	if len(serverID) == 0 {
 		pullServerImage(cli)
-		serverID = createServerContainer(cli)
+		serverID = createServer(cli)
 	}
 
 	if !isServerRunning(cli, serverID) {

@@ -18,6 +18,6 @@ func ConfigsGetRootPath() string {
 	return path.Join(home, values.RootNameDir)
 }
 
-func ConfigsGetKubernetesPath(root string) string {
-	return path.Join(root, values.KubernetesNameDir)
+func ConfigsGetKubernetesPath() string {
+	return path.Join(ConfigsGetRootPath(), values.KubernetesNameDir)
 }

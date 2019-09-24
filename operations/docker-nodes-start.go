@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	"github.com/spf13/viper"
 	"github.com/theblueforest/kiwi-companion/values"
 )
 
@@ -67,7 +68,7 @@ func createNode(cli *client.Client, networkID string, number int) string {
 		Image: values.ContainerImage,
 		Env: []string{
 			"K3S_URL=https://kiwi-server:6443",
-			"K3S_CLUSTER_SECRET=dropin-test",
+			"K3S_CLUSTER_SECRET=" + viper.GetString("clusterSecret"),
 		},
 	}
 

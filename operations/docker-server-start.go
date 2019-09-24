@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/spf13/viper"
 	"github.com/theblueforest/kiwi-companion/helpers"
 	"github.com/theblueforest/kiwi-companion/values"
 )
@@ -61,13 +62,11 @@ func pullServerImage(cli *client.Client) {
 func createServer(cli *client.Client, networkID string) string {
 	fmt.Printf("%s", "Creating server container...")
 
-	path := helpers.ConfigsGetKubernetesPath(helpers.ConfigsGetRootPath())
-
 	config := container.Config{
 		Image: values.ContainerImage,
 		Cmd:   []string{"server", "--disable-agent"},
 		Env: []string{
-			"K3S_CLUSTER_SECRET=dropin-test",
+			"K3S_CLUSTER_SECRET=" + viper.GetString("clusterSecret"),
 			"K3S_KUBECONFIG_OUTPUT=/var/lib/rancher/k3s/kubeconfig.yml",
 			"K3S_KUBECONFIG_MODE=666",
 		},
@@ -78,7 +77,7 @@ func createServer(cli *client.Client, networkID string) string {
 
 	host := container.HostConfig{
 		Mounts: []mount.Mount{
-			{Type: mount.TypeBind, Source: path, Target: "/var/lib/rancher/k3s"},
+			{Type: mount.TypeBind, Source: helpers.ConfigsGetKubernetesPath(), Target: "/var/lib/rancher/k3s"},
 			{Type: mount.TypeBind, Source: "/dev/mapper", Target: "/dev/mapper"},
 		},
 		PortBindings: nat.PortMap{

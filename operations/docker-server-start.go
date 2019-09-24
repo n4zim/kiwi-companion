@@ -11,13 +11,12 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/theblueforest/kiwi-companion/helpers"
+	"github.com/theblueforest/kiwi-companion/values"
 )
 
-var serverContainerName = "kiwi-server"
-var serverContainerImage = "rancher/k3s:latest"
-
 func checkExistingServer(cli *client.Client) string {
-	fmt.Printf("%s", "Checking for existing server...")
+	fmt.Printf("%s", "Checking for an existing server...")
 
 	containers, containersError := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
 	if containersError != nil {
@@ -28,7 +27,7 @@ func checkExistingServer(cli *client.Client) string {
 	serverID := ""
 
 	for _, container := range containers {
-		if container.Names[0] == "/"+serverContainerName {
+		if container.Names[0] == "/"+values.ServerContainerName {
 			serverID = container.ID
 		}
 	}
@@ -41,7 +40,7 @@ func checkExistingServer(cli *client.Client) string {
 func pullServerImage(cli *client.Client) {
 	fmt.Printf("%s", "Pulling k3s Docker image...")
 
-	pull, pullError := cli.ImagePull(context.Background(), serverContainerImage, types.ImagePullOptions{})
+	pull, pullError := cli.ImagePull(context.Background(), values.ContainerImage, types.ImagePullOptions{})
 
 	if pullError != nil {
 		fmt.Printf(" %s\n", "[ERROR]")
@@ -59,15 +58,17 @@ func pullServerImage(cli *client.Client) {
 	fmt.Printf(" %s\n\n", "[OK]")
 }
 
-func createServer(cli *client.Client) string {
+func createServer(cli *client.Client, networkID string) string {
 	fmt.Printf("%s", "Creating server container...")
 
+	path := helpers.ConfigsGetKubernetesPath(helpers.ConfigsGetRootPath())
+
 	config := container.Config{
-		Image: serverContainerImage,
+		Image: values.ContainerImage,
 		Cmd:   []string{"server", "--disable-agent"},
 		Env: []string{
 			"K3S_CLUSTER_SECRET=dropin-test",
-			"K3S_KUBECONFIG_OUTPUT=/kubeconfig.yml",
+			"K3S_KUBECONFIG_OUTPUT=/var/lib/rancher/k3s/kubeconfig.yml",
 			"K3S_KUBECONFIG_MODE=666",
 		},
 		ExposedPorts: nat.PortSet{
@@ -77,6 +78,7 @@ func createServer(cli *client.Client) string {
 
 	host := container.HostConfig{
 		Mounts: []mount.Mount{
+			{Type: mount.TypeBind, Source: path, Target: "/var/lib/rancher/k3s"},
 			{Type: mount.TypeBind, Source: "/dev/mapper", Target: "/dev/mapper"},
 		},
 		PortBindings: nat.PortMap{
@@ -89,9 +91,13 @@ func createServer(cli *client.Client) string {
 		},
 	}
 
-	network := network.NetworkingConfig{}
+	network := network.NetworkingConfig{
+		EndpointsConfig: map[string]*network.EndpointSettings{
+			values.NetworkName: &network.EndpointSettings{NetworkID: networkID},
+		},
+	}
 
-	create, createError := cli.ContainerCreate(context.Background(), &config, &host, &network, serverContainerName)
+	create, createError := cli.ContainerCreate(context.Background(), &config, &host, &network, values.ServerContainerName)
 	if createError != nil {
 		fmt.Printf(" %s\n", "[ERROR]")
 		panic(createError)
@@ -129,12 +135,12 @@ func startServer(cli *client.Client, serverID string) {
 }
 
 // StartKubernetesServer : Start Kubernetes server
-func StartKubernetesServer(cli *client.Client) {
+func StartKubernetesServer(cli *client.Client, networkID string) {
 	serverID := checkExistingServer(cli)
 
 	if len(serverID) == 0 {
 		pullServerImage(cli)
-		serverID = createServer(cli)
+		serverID = createServer(cli, networkID)
 	}
 
 	if !isServerRunning(cli, serverID) {

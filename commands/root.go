@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/theblueforest/kiwi-companion/helpers"
 )
 
-var cfgFile string
+var configFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "kiwi",
@@ -25,21 +25,25 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kiwi-companion.yaml)")
+	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.kiwi-companion.yaml)")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
 	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		root := helpers.ConfigsGetRootPath()
+
+		// Directories
+		if _, err := os.Stat(root); os.IsNotExist(err) {
+			os.Mkdir(root, 0750)
+			os.Mkdir(helpers.ConfigsGetKubernetesPath(root), 0750)
 		}
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".kiwi-companion")
+
+		// Configs
+		viper.AddConfigPath(root)
+		viper.SetConfigName(".config")
 	}
 
 	viper.AutomaticEnv()

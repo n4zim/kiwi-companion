@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/theblueforest/kiwi-companion/operations"
@@ -19,7 +21,14 @@ var upCmd = &cobra.Command{
 			panic(err)
 		}
 
-		operations.StartKubernetesServer(cli)
-		operations.StartKubernetesNodes(cli, 10)
+		network := operations.NetworkGet(cli)
+		if len(network) == 0 {
+			network = operations.NetworkCreate(cli)
+		}
+
+		operations.StartKubernetesServer(cli, network)
+		operations.StartKubernetesNodes(cli, network, 2)
+
+		fmt.Println("Everything is fine :)")
 	},
 }

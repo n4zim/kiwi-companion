@@ -5,3 +5,5 @@ var RandomBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 var RootNameDir = ".kiwi-companion"
 
 var KubernetesNameDir = "k3s"
+
+var DefaultNodesCount = 2

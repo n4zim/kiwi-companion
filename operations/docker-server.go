@@ -133,6 +133,32 @@ func startServer(cli *client.Client, serverID string) {
 	fmt.Printf(" %s\n\n", "[OK]")
 }
 
+func stopServer(cli *client.Client, serverID string) {
+	fmt.Printf("%s", "Stopping server container...")
+
+	stopError := cli.ContainerStop(context.Background(), serverID, nil)
+	if stopError != nil {
+		fmt.Printf(" %s\n", "[ERROR]")
+		panic(stopError)
+	}
+
+	fmt.Printf(" %s\n\n", "[OK]")
+}
+
+func removeServer(cli *client.Client, serverID string) {
+	fmt.Printf("%s", "Removing server container...")
+
+	removeError := cli.ContainerRemove(context.Background(), serverID, types.ContainerRemoveOptions{})
+	if removeError != nil {
+		fmt.Printf(" %s\n", "[ERROR]")
+		panic(removeError)
+	}
+
+	fmt.Printf(" %s\n\n", "[OK]")
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 // StartKubernetesServer : Start Kubernetes server
 func StartKubernetesServer(cli *client.Client, networkID string) {
 	serverID := checkExistingServer(cli)
@@ -144,5 +170,15 @@ func StartKubernetesServer(cli *client.Client, networkID string) {
 
 	if !isServerRunning(cli, serverID) {
 		startServer(cli, serverID)
+	}
+}
+
+func RemoveKubernetesServer(cli *client.Client) {
+	serverID := checkExistingServer(cli)
+	if len(serverID) != 0 {
+		if isServerRunning(cli, serverID) {
+			stopServer(cli, serverID)
+		}
+		removeServer(cli, serverID)
 	}
 }

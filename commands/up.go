@@ -49,7 +49,7 @@ var upCommand = &cobra.Command{
 
 		// Server & nodes
 		operations.StartKubernetesServer(cli, network)
-		operations.StartKubernetesNodes(cli, network, 2)
+		operations.StartKubernetesNodes(cli, network, values.DefaultNodesCount)
 
 		fmt.Println("Everything is fine :)")
 

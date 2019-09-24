@@ -44,3 +44,16 @@ func NetworkCreate(cli *client.Client) string {
 
 	return network.ID
 }
+
+func NetworkRemove(cli *client.Client, networkID string) {
+	fmt.Printf("%s", "Removing network...")
+
+	networkError := cli.NetworkRemove(context.Background(), networkID)
+
+	if networkError != nil {
+		fmt.Printf(" %s\n", "[ERROR]")
+		panic(networkError)
+	}
+
+	fmt.Printf(" %s\n\n", "[OK]")
+}

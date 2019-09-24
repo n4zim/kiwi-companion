@@ -123,7 +123,7 @@ func stopNode(cli *client.Client, number int, nodeID string) {
 }
 
 func removeNode(cli *client.Client, number int, nodeID string) {
-	fmt.Printf("%s %d %s", "Deleting node", number, "container...")
+	fmt.Printf("%s %d %s", "Removing node", number, "container...")
 
 	removeError := cli.ContainerRemove(context.Background(), nodeID, types.ContainerRemoveOptions{})
 	if removeError != nil {
@@ -136,19 +136,28 @@ func removeNode(cli *client.Client, number int, nodeID string) {
 
 // StartKubernetesNodes : Start Kubernetes nodes
 func StartKubernetesNodes(cli *client.Client, networkID string, count int) {
-	for number, ID := range getExistingNodes(cli, count) {
+	for number, nodeID := range getExistingNodes(cli, count) {
 		if number <= count {
-			if len(ID) == 0 { // No existing node
-				createNode(cli, networkID, number)
-				startNode(cli, number, ID)
-			} else if !isNodeRunning(cli, number, ID) { // Node not running
-				startNode(cli, number, ID)
+			if len(nodeID) == 0 { // No existing node
+				nodeID := createNode(cli, networkID, number)
+				startNode(cli, number, nodeID)
+			} else if !isNodeRunning(cli, number, nodeID) { // Node not running
+				startNode(cli, number, nodeID)
 			}
 		} else { // Not needed node
-			if isNodeRunning(cli, number, ID) { // Node is running
-				stopNode(cli, number, ID)
+			if isNodeRunning(cli, number, nodeID) { // Node is running
+				stopNode(cli, number, nodeID)
 			}
-			removeNode(cli, number, ID)
+			removeNode(cli, number, nodeID)
 		}
+	}
+}
+
+func RemoveKubernetesNodes(cli *client.Client) {
+	for number, ID := range getExistingNodes(cli, 0) {
+		if isNodeRunning(cli, number, ID) { // Node is running
+			stopNode(cli, number, ID)
+		}
+		removeNode(cli, number, ID)
 	}
 }

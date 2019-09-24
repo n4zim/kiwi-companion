@@ -32,6 +32,9 @@ var upCommand = &cobra.Command{
 			viper.Set("clusterSecret", string(bytes))
 		}
 
+		// End of configs
+		viper.SafeWriteConfig()
+
 		// Docker client
 		cli, err := client.NewEnvClient()
 		if err != nil {

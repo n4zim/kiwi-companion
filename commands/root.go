@@ -44,8 +44,8 @@ func initConfig() {
 	if configFile != "" {
 		viper.SetConfigFile(configFile)
 	} else {
-		viper.AddConfigPath(root)
 		viper.SetConfigName(".config")
+		viper.AddConfigPath(root)
 	}
 
 	viper.AutomaticEnv()

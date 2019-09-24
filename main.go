@@ -1,7 +1,7 @@
 package main
 
-import "github.com/theblueforest/kiwi-companion/cmd"
+import "github.com/theblueforest/kiwi-companion/commands"
 
 func main() {
-  cmd.Execute()
+	commands.Execute()
 }

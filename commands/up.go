@@ -1,4 +1,4 @@
-package cmd
+package commands
 
 import (
 	"context"
@@ -38,11 +38,7 @@ func startKubernetes(cli *client.Client) {
 
 	fmt.Printf(" %s\n\n", "[OK]")
 
-	if len(serverID) != 0 {
-
-		fmt.Printf("%s\n\n", "A server is already started, use `kiwi down` to reset it")
-
-	} else {
+	if len(serverID) == 0 {
 
 		serverImage := "rancher/k3s:latest"
 
@@ -74,6 +70,15 @@ func startKubernetes(cli *client.Client) {
 				"K3S_KUBECONFIG_MODE=666",
 			},
 			ExposedPorts: nat.PortSet{
+				"6443/tcp": {},
+			},
+		}
+
+		host := container.HostConfig{
+			Mounts: []mount.Mount{
+				{Type: mount.TypeBind, Source: "/dev/mapper", Target: "/dev/mapper"},
+			},
+			PortBindings: nat.PortMap{
 				"6443/tcp": []nat.PortBinding{
 					{
 						HostIP:   "0.0.0.0",
@@ -83,33 +88,51 @@ func startKubernetes(cli *client.Client) {
 			},
 		}
 
-		host := container.HostConfig{
-			Mounts: []mount.Mount{
-				{Type: mount.TypeBind, Source: "/dev/mapper", Target: "/dev/mapper"},
-			},
-		}
-
 		network := network.NetworkingConfig{}
 
-		_, createError := cli.ContainerCreate(context.Background(), &config, &host, &network, serverName)
+		create, createError := cli.ContainerCreate(context.Background(), &config, &host, &network, serverName)
 		if createError != nil {
 			fmt.Printf(" %s\n", "[ERROR]")
 			panic(createError)
 		}
 
+		serverID = create.ID
+
 		fmt.Printf(" %s\n\n", "[OK]")
 
 	}
 
+	fmt.Printf("%s", "Checking server container state...")
+
+	inspect, inspectError := cli.ContainerInspect(context.Background(), serverID)
+	if inspectError != nil {
+		fmt.Printf(" %s\n", "[ERROR]")
+		panic(inspectError)
+	}
+
+	fmt.Printf(" %s\n\n", "[OK]")
+
+	if !inspect.State.Running {
+		fmt.Printf("%s", "Starting server container...")
+
+		startError := cli.ContainerStart(context.Background(), serverID, types.ContainerStartOptions{})
+		if startError != nil {
+			fmt.Printf(" %s\n", "[ERROR]")
+			panic(startError)
+		}
+
+		fmt.Printf(" %s\n\n", "[OK]")
+	}
+
+	// fmt.Printf("%+v\n", )
 }
 
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Deploy the Kubernetes server",
 	Run: func(cmd *cobra.Command, args []string) {
-
 		// Docker Client
-		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		cli, err := client.NewEnvClient()
 		if err != nil {
 			panic(err)
 		}

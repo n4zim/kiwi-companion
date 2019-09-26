@@ -11,6 +11,7 @@ import (
 	"github.com/theblueforest/kiwi-companion/helpers"
 	"github.com/theblueforest/kiwi-companion/operations"
 	"github.com/theblueforest/kiwi-companion/values"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -73,11 +74,12 @@ func kubernetesStep() {
 		panic(err.Error())
 	}
 
-	/*pods, err := client.CoreV1().Pods("").List(metav1.ListOptions{})
+	pods, err := client.CoreV1().Pods("").List(metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
-	}*/
-	fmt.Printf("%+v\n", client)
+	}
+
+	fmt.Printf("%+v\n", pods)
 }
 
 var upCommand = &cobra.Command{
